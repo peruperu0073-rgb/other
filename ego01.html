@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>自我について</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Noto+Serif+JP:wght@200;300;400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #0f1e30;
+    --gold: #c9a84c;
+    --gold-light: #e2c97e;
+    --gold-pale: #f5e9c8;
+    --white: #faf7f2;
+    --navy-text: #1a2e45;
+    --navy-mid: #2a4060;
+    --cream: #f0e8d8;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Noto Serif JP', serif;
+    font-weight: 300;
+    line-height: 1.95;
+    overflow-x: hidden;
+    background: var(--navy);
+  }
+
+  /* ── HEADER (navy) ── */
+  .site-header {
+    background: var(--navy);
+    padding: 80px 40px 72px;
+    text-align: center;
+    animation: fadeUp 1s ease both;
+  }
+
+  .header-eyebrow {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 0.8rem;
+    letter-spacing: 0.5em;
+    color: var(--gold);
+    opacity: 0.75;
+    margin-bottom: 22px;
+    text-transform: uppercase;
+    display: block;
+  }
+
+  .site-header h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2.6rem, 6vw, 4rem);
+    font-weight: 300;
+    color: var(--white);
+    letter-spacing: 0.18em;
+    line-height: 1.2;
+  }
+
+  .header-rule {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+    margin-top: 30px;
+  }
+  .header-rule::before,
+  .header-rule::after {
+    content: '';
+    width: 100px;
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--gold) 80%);
+  }
+  .header-rule::after {
+    background: linear-gradient(to left, transparent, var(--gold) 80%);
+  }
+  .header-rule span { color: var(--gold); font-size: 0.9rem; }
+
+  /* ── SECTION BASE ── */
+  .section {
+    padding: 64px clamp(24px, 6vw, 100px);
+    animation: fadeUp 0.8s ease both;
+  }
+
+  .section:nth-child(odd)  { animation-delay: 0.05s; }
+  .section:nth-child(even) { animation-delay: 0.1s; }
+
+  /* ── DARK SECTION: navy bg, gold/cream text ── */
+  .dark {
+    background: var(--navy);
+    color: var(--cream);
+  }
+
+  .dark .section-tag { color: var(--gold); opacity: 0.7; }
+  .dark h2           { color: var(--gold-light); }
+  .dark p            { color: #c8bfaf; }
+  .dark .insight-box {
+    background: rgba(201, 168, 76, 0.08);
+    border-left: 2px solid var(--gold);
+  }
+  .dark .insight-box p { color: var(--gold-pale); }
+  .dark .highlight   { color: var(--gold-light); }
+  .dark .structure-text       { color: #c8bfaf; }
+  .dark .structure-text strong { color: var(--gold-light); }
+  .dark .structure-arrow      { color: var(--gold); opacity: 0.65; }
+
+  /* ── LIGHT SECTION: white bg, navy text ── */
+  .light {
+    background: var(--white);
+    color: var(--navy-text);
+  }
+
+  .light .section-tag { color: var(--navy-mid); opacity: 0.55; }
+  .light h2           { color: var(--navy-text); }
+  .light p            { color: #3a5068; }
+  .light .insight-box {
+    background: rgba(15, 30, 48, 0.05);
+    border-left: 2px solid var(--navy-mid);
+  }
+  .light .insight-box p { color: var(--navy-text); }
+  .light .highlight   { color: var(--navy-mid); font-weight: 400; }
+  .light .structure-text        { color: #3a5068; }
+  .light .structure-text strong { color: var(--navy-text); font-weight: 400; }
+  .light .structure-arrow       { color: var(--navy-mid); opacity: 0.6; }
+
+  /* ── INNER LAYOUT (max-width container) ── */
+  .section-inner {
+    max-width: 720px;
+    margin: 0 auto;
+  }
+
+  /* Section tag */
+  .section-tag {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 0.72rem;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    display: block;
+  }
+
+  h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    font-weight: 400;
+    letter-spacing: 0.05em;
+    line-height: 1.4;
+    margin-bottom: 26px;
+  }
+
+  p {
+    font-size: 0.95rem;
+    line-height: 2.05;
+    margin-bottom: 16px;
+  }
+  p:last-child { margin-bottom: 0; }
+
+  /* Insight box */
+  .insight-box {
+    margin-top: 26px;
+    padding: 20px 24px;
+    border-radius: 0 2px 2px 0;
+  }
+  .insight-box p {
+    margin: 0;
+    font-size: 0.92rem;
+    font-style: italic;
+    line-height: 1.9;
+  }
+
+  /* Structure flow */
+  .structure {
+    margin: 26px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .structure-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+  }
+  .structure-arrow {
+    font-size: 0.82rem;
+    margin-top: 4px;
+    flex-shrink: 0;
+    width: 18px;
+  }
+  .structure-text {
+    font-size: 0.9rem;
+    line-height: 1.75;
+  }
+  .structure-text strong { font-weight: 400; margin-right: 6px; }
+
+  /* ── FINAL SECTION ── */
+  .section-final {
+    background: var(--navy);
+    text-align: center;
+    padding-bottom: 90px;
+  }
+  .section-final .section-inner { max-width: 640px; }
+  .section-final .section-tag  { color: var(--gold); opacity: 0.7; text-align: center; }
+  .section-final h2             { color: var(--gold-light); text-align: center; }
+  .section-final p              { color: #c8bfaf; }
+  .section-final .insight-box {
+    background: rgba(201, 168, 76, 0.08);
+    border-left: none;
+    border: 1px solid rgba(201,168,76,0.25);
+    border-radius: 2px;
+    text-align: left;
+  }
+  .section-final .insight-box p { color: var(--gold-pale); }
+  .section-final .highlight      { color: var(--gold-light); }
+
+  /* Divider between sections */
+  .divider {
+    height: 1px;
+    background: linear-gradient(to right, transparent, rgba(201,168,76,0.3), transparent);
+  }
+
+  /* Closing ornament */
+  .closing-ornament {
+    margin-top: 48px;
+    color: var(--gold);
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.2rem;
+    letter-spacing: 0.6em;
+    opacity: 0.45;
+  }
+
+  /* Animation */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    .site-header { padding: 56px 24px 52px; }
+    .section { padding: 48px 24px; }
+  }
+</style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="site-header">
+    <span class="header-eyebrow">Consciousness Studies</span>
+    <h1>自我について</h1>
+    <div class="header-rule"><span>✦</span></div>
+  </header>
+
+  <div class="divider"></div>
+
+  <!-- 1: LIGHT -->
+  <section class="section light">
+    <div class="section-inner">
+      <span class="section-tag">Origin</span>
+      <h2>「私」という感覚の始まり</h2>
+      <p>人は生まれた瞬間、まだ「私」というものを持っていません。赤ちゃんは、世界と自分の境界線がなく、ただ在るだけの存在です。</p>
+      <p>ところが成長するにつれて、少しずつ「私」という感覚が育ってきます。「これは私のもの」「私は○○が好き」「私は○○が怖い」——この自己認識の芽生えは、自然で必要なプロセスです。社会の中で生きていくためには、ある程度の「私」という輪郭が必要だからです。</p>
+      <div class="insight-box">
+        <p>しかしここで、ひとつの大きな誤りが静かに始まります——その「私」という感覚が、<span class="highlight">本当の自分だと思い込んでしまうこと</span>です。</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- 2: DARK -->
+  <section class="section dark">
+    <div class="section-inner">
+      <span class="section-tag">Structure</span>
+      <h2>自我とは何か</h2>
+      <p>「私」という感覚の正体は、実はプログラムの集合体です。家族・文化・経験・恐れ・記憶——これらが積み重なってできた、思考と反応のパターン。これを「自我」と呼びます。</p>
+      <p>自我はもともと、生き延びるために作られた機能です。「危険を避けよ」「承認を得よ」「コントロールせよ」——これらは生存のための知恵でした。コンピュータのソフトウェアのように、書かれた通りに動くだけで、それ自体に善も悪もありません。</p>
+      <div class="insight-box">
+        <p>問題が生じるのは、そのプログラムを<span class="highlight">「これが本当の私だ」と信じ、同一化してしまった瞬間</span>からです。</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- 3: LIGHT -->
+  <section class="section light">
+    <div class="section-inner">
+      <span class="section-tag">Foundation</span>
+      <h2>自我の構造——「立ち位置」という土台</h2>
+      <p>自我には「立ち位置」と呼ばれる土台があります。立ち位置とは、私たちが世界を見るときの、無意識の視点のことです。</p>
+      <p>たとえば「お金は苦労して得るものだ」という立ち位置があれば：</p>
+      <div class="structure">
+        <div class="structure-item">
+          <span class="structure-arrow">◆</span>
+          <span class="structure-text"><strong>立ち位置</strong>「お金は苦労して得るものだ」</span>
+        </div>
+        <div class="structure-item">
+          <span class="structure-arrow">↓</span>
+          <span class="structure-text"><strong>信念</strong>「楽に稼ぐことは悪いことだ」</span>
+        </div>
+        <div class="structure-item">
+          <span class="structure-arrow">↓</span>
+          <span class="structure-text"><strong>思考</strong>「どうせうまくいかない」</span>
+        </div>
+        <div class="structure-item">
+          <span class="structure-arrow">↓</span>
+          <span class="structure-text"><strong>感情</strong>不安や罪悪感</span>
+        </div>
+        <div class="structure-item">
+          <span class="structure-arrow">↓</span>
+          <span class="structure-text"><strong>現実</strong>行動を通じて、現実を作る</span>
+        </div>
+      </div>
+      <p>立ち位置は水面下に沈んでいるため、ふだん見えません。見えているのは、そこから生まれた感情や思考や、出来事という「結果」だけです。実践において、立ち位置を明るみに出すことが重要なのは、このためです。</p>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- 4: DARK -->
+  <section class="section dark">
+    <div class="section-inner">
+      <span class="section-tag">Core Nature</span>
+      <h2>自己陶酔性——自我の核心的な性質</h2>
+      <p>自我には、特に重要な性質があります。それが「<span class="highlight">自己陶酔性</span>」です。</p>
+      <p>自己陶酔性とは、「自分が著者だ」という感覚への強い執着のことです。「私がこれを考えた」「私がこれを理解した」「私がこれを成し遂げた」——自我は常に、この「私が」という著者性を手放したくありません。</p>
+      <div class="insight-box">
+        <p>これは悪意ではなく、プログラムの性質です。しかしこの性質があるために、霊的な実践の場でも自我は密かに入り込みます。<span class="highlight">「自分は実践が深まっている」という形で——手放しの実践そのものを、自我が「自分の成果」として取り込もうとする</span>のです。</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- 5: LIGHT -->
+  <section class="section light">
+    <div class="section-inner">
+      <span class="section-tag">True Self</span>
+      <h2>「自己」——本当の自分</h2>
+      <p>自我とは区別して、「自己」という言葉があります。「自己」とは、プログラムでも、思考でも、感情でも、記憶でもありません。それらすべてを静かに見ている、<span class="highlight">意識そのもの</span>です。</p>
+      <p>自我が「動いているもの」だとすれば、「自己」は「それを見ているもの」です。空がどんな雲の影響も受けないように、「自己」はいかなる感情や思考が通過しても、揺れることがありません。</p>
+      <div class="insight-box">
+        <p>重要なのは——「自己」は、どこか遠くに在るのではないという点です。自我というプログラムの<span class="highlight">翳りに覆われているだけで、常にすでにそこに在ります</span>。</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- 6: DARK FINAL -->
+  <section class="section dark section-final">
+    <div class="section-inner">
+      <span class="section-tag">Practice</span>
+      <h2>自我を超えるとは</h2>
+      <p>「自我を倒す」「自我と戦う」というアプローチは機能しません。自我を敵と見て戦う、その行為自体がまた自我の作用だからです。</p>
+      <p>自我を超える唯一の道は、<span class="highlight">観察すること</span>です。自我が動いているのを、ただ静かに見る。その瞬間に、見ている「何か」が現れます。その観察者こそが「自己」です。</p>
+      <p>観察が起きた瞬間、同一化は解けています。</p>
+      <div class="insight-box" style="margin-top: 32px;">
+        <p>特別なことは何もしなくていい——<span class="highlight">気付くだけで、すでにそれは始まっています。</span></p>
+      </div>
+      <div class="closing-ornament">— ✦ —</div>
+    </div>
+  </section>
+
+</body>
+</html>
