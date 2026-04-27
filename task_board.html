@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TASK BOARD</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #ffffff;
+    --surface: #f9f5f6;
+    --surface2: #ffdeeb;
+    --border: #2a2a38;
+    --accent: #e8c97a;
+    --accent2: #7a9ee8;
+    --accent3: #e87aa0;
+    --text: #e8e6f0;
+    --text-muted: #7a7a96;
+    --urgent: #e87a7a;
+    --soon: #e8c97a;
+    --later: #7a9ee8;
+    --radius: 12px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Noto Sans JP', sans-serif;
+    min-height: 100vh;
+    padding: 24px 16px 60px;
+  }
+
+  /* ノイズテクスチャ */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.4;
+  }
+
+  .container { max-width: 900px; margin: 0 auto; position: relative; z-index: 1; }
+
+  /* ヘッダー */
+  header {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    margin-bottom: 32px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .logo {
+    font-family: 'DM Mono', monospace;
+    font-size: 22px;
+    font-weight: 500;
+    letter-spacing: 0.15em;
+    color: var(--accent);
+  }
+
+  .header-sub {
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 0.1em;
+  }
+
+  .last-updated {
+    margin-left: auto;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+
+  /* ゾーンラベル */
+  .zone-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+
+  .zone-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .zone-title {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .zone-count {
+    margin-left: auto;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--text-muted);
+    background: var(--surface2);
+    padding: 2px 8px;
+    border-radius: 20px;
+  }
+
+  /* ゾーン */
+  .zone { margin-bottom: 28px; }
+
+  .zone-urgent .zone-dot { background: var(--urgent); box-shadow: 0 0 8px var(--urgent); }
+  .zone-soon .zone-dot { background: var(--soon); box-shadow: 0 0 8px var(--soon); }
+  .zone-later .zone-dot { background: var(--later); box-shadow: 0 0 8px var(--later); }
+
+  /* タスクカードグリッド */
+  .task-grid {
+    display: grid;
+    gap: 8px;
+  }
+
+  .zone-urgent .task-grid { grid-template-columns: 1fr; }
+  .zone-soon .task-grid { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+  .zone-later .task-grid { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
+
+  /* タスクカード — ゾーン別背景色 */
+  .task-card {
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.15s, box-shadow 0.15s;
+    animation: fadeIn 0.3s ease;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* 赤系 */
+  .zone-urgent .task-card {
+    background: rgba(232,122,122,0.12);
+    border: 1px solid rgba(232,122,122,0.35);
+  }
+  .zone-urgent .task-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(232,122,122,0.2);
+  }
+
+  /* オレンジ系 */
+  .zone-soon .task-card {
+    background: rgba(232,180,100,0.10);
+    border: 1px solid rgba(232,180,100,0.35);
+  }
+  .zone-soon .task-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(232,180,100,0.2);
+  }
+
+  /* 青系 */
+  .zone-later .task-card {
+    background: rgba(122,158,232,0.10);
+    border: 1px solid rgba(122,158,232,0.30);
+  }
+  .zone-later .task-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(122,158,232,0.18);
+  }
+
+  .task-card::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 4px;
+  }
+
+  .zone-urgent .task-card::before { background: var(--urgent); }
+  .zone-soon .task-card::before { background: #e8b464; }
+  .zone-later .task-card::before { background: var(--later); }
+
+  /* カード内フォント — 暗色 */
+  .task-project {
+    font-size: 10px;
+    color: #555566;
+    letter-spacing: 0.08em;
+    margin-bottom: 4px;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .zone-urgent .task-project { color: #a05050; }
+  .zone-soon .task-project   { color: #8a6a20; }
+  .zone-later .task-project  { color: #3a5a9a; }
+
+  .task-name {
+    font-size: 16px;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin-bottom: 6px;
+    line-height: 1.4;
+  }
+
+  .task-note {
+    font-size: 12px;
+    color: #44445a;
+    line-height: 1.5;
+    margin-bottom: 8px;
+  }
+
+  .task-footer {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .task-due {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 4px;
+    font-weight: 600;
+  }
+
+  .zone-urgent .task-due { background: rgba(232,122,122,0.2); color: #c03030; }
+  .zone-soon .task-due   { background: rgba(232,180,100,0.2); color: #8a5a00; }
+  .zone-later .task-due  { background: rgba(122,158,232,0.2); color: #2a4a9a; }
+
+  /* 編集ボタン */
+  .task-edit-btn {
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 5px 12px;
+    border-radius: 6px;
+    transition: all 0.15s;
+    font-family: 'Noto Sans JP', sans-serif;
+    background: rgba(255,255,255,0.4);
+    border: 1.5px solid rgba(100,100,150,0.3);
+    color: #44445a;
+  }
+  .task-edit-btn:hover { background: rgba(255,255,255,0.7); }
+
+  /* 完了ボタン（右寄せ・目立つスタイル） */
+  .task-done-btn {
+    margin-left: auto;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 5px 14px;
+    border-radius: 6px;
+    transition: all 0.15s;
+    font-family: 'Noto Sans JP', sans-serif;
+    letter-spacing: 0.04em;
+  }
+
+  .zone-urgent .task-done-btn {
+    background: rgba(232,122,122,0.15);
+    border: 1.5px solid rgba(200,80,80,0.5);
+    color: #b03030;
+  }
+  .zone-urgent .task-done-btn:hover { background: rgba(232,122,122,0.3); }
+
+  .zone-soon .task-done-btn {
+    background: rgba(232,180,100,0.15);
+    border: 1.5px solid rgba(200,150,60,0.5);
+    color: #7a4a00;
+  }
+  .zone-soon .task-done-btn:hover { background: rgba(232,180,100,0.3); }
+
+  .zone-later .task-done-btn {
+    background: rgba(122,158,232,0.15);
+    border: 1.5px solid rgba(80,120,200,0.5);
+    color: #2a4a9a;
+  }
+  .zone-later .task-done-btn:hover { background: rgba(122,158,232,0.3); }
+
+  /* 確認モーダル */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(4px);
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+  }
+  .modal-overlay.show { opacity: 1; pointer-events: all; }
+
+  .modal-box {
+    background: #f5f3ee;
+    border-radius: 16px;
+    padding: 28px 28px 20px;
+    width: min(340px, 90vw);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+    transform: translateY(10px) scale(0.97);
+    transition: transform 0.2s;
+  }
+  .modal-overlay.show .modal-box { transform: translateY(0) scale(1); }
+
+  .modal-icon { font-size: 32px; margin-bottom: 10px; }
+  .modal-title { font-size: 16px; font-weight: 700; color: #1a1a2e; margin-bottom: 6px; }
+  .modal-task-name {
+    font-size: 13px; color: #44445a; margin-bottom: 20px;
+    background: #e8e6f0; border-radius: 8px; padding: 8px 12px;
+    line-height: 1.5;
+  }
+  .modal-btns { display: flex; gap: 10px; }
+  .modal-btn {
+    flex: 1; padding: 10px; border-radius: 8px; border: none;
+    font-size: 14px; font-weight: 600; cursor: pointer;
+    font-family: 'Noto Sans JP', sans-serif;
+    transition: opacity 0.15s;
+  }
+  .modal-btn:hover { opacity: 0.8; }
+  .modal-btn-cancel { background: #ddd; color: #555; }
+  .modal-btn-confirm { background: #3a6ae8; color: #fff; }
+
+  /* 編集モーダル */
+  .edit-modal-box {
+    background: #f5f3ee;
+    border-radius: 16px;
+    padding: 24px;
+    width: min(420px, 94vw);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+    transform: translateY(10px) scale(0.97);
+    transition: transform 0.2s;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+  .modal-overlay.show .edit-modal-box { transform: translateY(0) scale(1); }
+  .edit-modal-title {
+    font-size: 15px; font-weight: 700; color: #1a1a2e;
+    margin-bottom: 18px;
+  }
+  .edit-form-group { display: flex; flex-direction: column; gap: 5px; margin-bottom: 12px; }
+  .edit-label { font-size: 11px; color: #7a7a96; font-family: 'DM Mono', monospace; letter-spacing: 0.08em; }
+  .edit-input, .edit-textarea {
+    background: #fff;
+    border: 1.5px solid #d0cee8;
+    border-radius: 8px;
+    color: #1a1a2e;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 14px;
+    padding: 9px 12px;
+    outline: none;
+    width: 100%;
+    transition: border-color 0.15s;
+  }
+  .edit-input:focus, .edit-textarea:focus { border-color: #3a6ae8; }
+  .edit-textarea { resize: vertical; min-height: 70px; }
+  .edit-modal-btns { display: flex; gap: 10px; margin-top: 16px; }
+  .edit-btn-delete {
+    background: rgba(220,60,60,0.1);
+    border: 1.5px solid rgba(220,60,60,0.4);
+    color: #c03030; border-radius: 8px;
+    padding: 10px 16px; font-size: 13px; font-weight: 600;
+    cursor: pointer; font-family: 'Noto Sans JP', sans-serif;
+    transition: background 0.15s;
+  }
+  .edit-btn-delete:hover { background: rgba(220,60,60,0.2); }
+  .edit-btn-save {
+    flex: 1; background: #3a6ae8; color: #fff;
+    border: none; border-radius: 8px; padding: 10px;
+    font-size: 14px; font-weight: 600; cursor: pointer;
+    font-family: 'Noto Sans JP', sans-serif; transition: opacity 0.15s;
+  }
+  .edit-btn-save:hover { opacity: 0.85; }
+
+  /* 空状態 */
+  .empty-state {
+    padding: 20px;
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 13px;
+    border: 1px dashed var(--border);
+    border-radius: var(--radius);
+  }
+
+  /* 仕切り線 */
+  .divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 32px 0;
+  }
+
+  /* 入力フォーム */
+  .form-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+  }
+
+  .form-title {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.18em;
+    color: var(--accent);
+    margin-bottom: 20px;
+    text-transform: uppercase;
+  }
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  @media (max-width: 600px) {
+    .form-grid { grid-template-columns: 1fr; }
+    .zone-soon .task-grid { grid-template-columns: 1fr; }
+    .zone-later .task-grid { grid-template-columns: 1fr; }
+  }
+
+  .form-group { display: flex; flex-direction: column; gap: 6px; }
+  .form-group.full { grid-column: 1 / -1; }
+
+  label {
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 0.08em;
+    font-family: 'DM Mono', monospace;
+  }
+
+  input, textarea, select {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 14px;
+    padding: 10px 12px;
+    transition: border-color 0.15s;
+    outline: none;
+    width: 100%;
+  }
+
+  input:focus, textarea:focus, select:focus { border-color: var(--accent); }
+  textarea { resize: vertical; min-height: 80px; }
+  select option { background: var(--surface2); }
+
+  .btn-submit {
+    background: var(--accent);
+    color: #0f0f11;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 28px;
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    transition: opacity 0.15s, transform 0.15s;
+    width: 100%;
+    margin-top: 4px;
+  }
+
+  .btn-submit:hover { opacity: 0.85; transform: translateY(-1px); }
+  .btn-submit:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+  /* 通知 */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: var(--surface2);
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    z-index: 100;
+    transform: translateY(80px);
+    opacity: 0;
+    transition: all 0.3s;
+  }
+
+  .toast.show { transform: translateY(0); opacity: 1; }
+
+  /* ローディング */
+  .loading {
+    text-align: center;
+    padding: 40px;
+    color: var(--text-muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    letter-spacing: 0.1em;
+  }
+
+  .loading::after {
+    content: '';
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin-left: 10px;
+    vertical-align: middle;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* GAS未設定バナー */
+  .setup-banner {
+    background: rgba(232,201,122,0.08);
+    border: 1px solid rgba(232,201,122,0.3);
+    border-radius: var(--radius);
+    padding: 16px 20px;
+    margin-bottom: 28px;
+    font-size: 13px;
+    color: var(--soon);
+    line-height: 1.6;
+  }
+
+  .setup-banner strong { font-family: 'DM Mono', monospace; font-size: 12px; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <div class="logo">森本現場作業リスト</div>
+    <div class="header-sub">/ タスク管理</div>
+    <div class="last-updated" id="lastUpdated">—</div>
+  </header>
+
+  <!-- GAS未設定時のバナー -->
+  <div class="setup-banner" id="setupBanner" style="display:none;">
+    ⚙️ <strong>GAS_URL</strong> をこのファイルの先頭に設定してください。
+    設定が完了するまでデモモード（ローカル保存）で動作します。
+  </div>
+
+  <!-- 緊急 -->
+  <div class="zone zone-urgent">
+    <div class="zone-label">
+      <div class="zone-dot"></div>
+      <div class="zone-title">URGENT — 明日まで！</div>
+      <div class="zone-count" id="count-urgent">0</div>
+    </div>
+    <div class="task-grid" id="zone-urgent">
+      <div class="loading">読み込み中</div>
+    </div>
+  </div>
+
+  <!-- 近日 -->
+  <div class="zone zone-soon">
+    <div class="zone-label">
+      <div class="zone-dot"></div>
+      <div class="zone-title">SOON — ～5日以内</div>
+      <div class="zone-count" id="count-soon">0</div>
+    </div>
+    <div class="task-grid" id="zone-soon">
+      <div class="loading">読み込み中</div>
+    </div>
+  </div>
+
+  <!-- 翌週以降 -->
+  <div class="zone zone-later">
+    <div class="zone-label">
+      <div class="zone-dot"></div>
+      <div class="zone-title">LATER — ～来週以降</div>
+      <div class="zone-count" id="count-later">0</div>
+    </div>
+    <div class="task-grid" id="zone-later">
+      <div class="loading">読み込み中</div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- 入力フォーム -->
+  <div class="form-section">
+    <div class="form-title">+ NEW TASK</div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>案件名 *</label>
+        <input type="text" id="f-project" placeholder="例: 壁画プロジェクトA">
+      </div>
+      <div class="form-group">
+        <label>期日 *</label>
+        <input type="date" id="f-due">
+      </div>
+      <div class="form-group full">
+        <label>タスク名 *</label>
+        <input type="text" id="f-task" placeholder="例: ライセンサーへの初稿送付">
+      </div>
+      <div class="form-group full">
+        <label>補足・メモ</label>
+        <textarea id="f-note" placeholder="担当者、注意点、リンクなど"></textarea>
+      </div>
+    </div>
+    <button class="btn-submit" id="submitBtn" onclick="addTask()">タスクを登録する</button>
+  </div>
+
+</div>
+
+<!-- 編集モーダル -->
+<div class="modal-overlay" id="editModal">
+  <div class="edit-modal-box">
+    <div class="edit-modal-title">✎ タスクを編集</div>
+    <div class="edit-form-group">
+      <label class="edit-label">案件名 *</label>
+      <input class="edit-input" id="e-project" type="text">
+    </div>
+    <div class="edit-form-group">
+      <label class="edit-label">期日 *</label>
+      <input class="edit-input" id="e-due" type="date">
+    </div>
+    <div class="edit-form-group">
+      <label class="edit-label">タスク名 *</label>
+      <input class="edit-input" id="e-task" type="text">
+    </div>
+    <div class="edit-form-group">
+      <label class="edit-label">補足・メモ</label>
+      <textarea class="edit-textarea" id="e-note"></textarea>
+    </div>
+    <div class="edit-modal-btns">
+      <button class="edit-btn-delete" onclick="deleteFromEdit()">削除</button>
+      <button class="modal-btn modal-btn-cancel" onclick="closeEditModal()" style="flex:1">キャンセル</button>
+      <button class="edit-btn-save" onclick="saveEdit()">保存する</button>
+    </div>
+  </div>
+</div>
+
+<!-- 完了確認モーダル -->
+<div class="modal-overlay" id="doneModal">
+  <div class="modal-box">
+    <div class="modal-icon">✅</div>
+    <div class="modal-title">このタスクを完了にしますか？</div>
+    <div class="modal-task-name" id="modalTaskName"></div>
+    <div class="modal-btns">
+      <button class="modal-btn modal-btn-cancel" onclick="closeModal()">キャンセル</button>
+      <button class="modal-btn modal-btn-confirm" onclick="confirmDone()">完了にする</button>
+    </div>
+  </div>
+</div>
+
+<!-- トースト通知 -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ============================================================
+// ★ ここにGASのウェブアプリURLを貼り付けてください ★
+// デプロイ後に取得できるURLです
+// ============================================================
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbyegqqF3ks-KV_hsoMqAQRfhu06hf0tmSA9Y4lGyB1aoBTcHr12kpF2L2pzHu0wQqQp/exec';
+// ============================================================
+
+const USE_LOCAL = !GAS_URL;
+let tasks = [];
+
+// 初期化
+window.onload = () => {
+  if (USE_LOCAL) {
+    document.getElementById('setupBanner').style.display = 'block';
+    const saved = localStorage.getItem('taskboard_tasks');
+    tasks = saved ? JSON.parse(saved) : [];
+    render();
+  } else {
+    fetchTasks();
+  }
+
+  // 今日の日付をデフォルトに
+  const today = new Date();
+  today.setDate(today.getDate() + 1);
+  document.getElementById('f-due').valueAsDate = today;
+};
+
+// データ取得
+async function fetchTasks() {
+  try {
+    const res = await fetch(`${GAS_URL}?action=getTasks`);
+    const data = await res.json();
+    tasks = data.tasks || [];
+    render();
+  } catch(e) {
+    showToast('データ取得エラー。ローカルで動作します。');
+    tasks = JSON.parse(localStorage.getItem('taskboard_tasks') || '[]');
+    render();
+  }
+}
+
+// レンダリング
+function render() {
+  const now = new Date();
+  now.setHours(0,0,0,0);
+  const day1 = new Date(now); day1.setDate(now.getDate() + 1);
+  const day5 = new Date(now); day5.setDate(now.getDate() + 5);
+
+  const urgent = [], soon = [], later = [];
+
+  tasks.forEach(t => {
+    const due = new Date(t.due);
+    due.setHours(0,0,0,0);
+    if (due <= day1) urgent.push(t);
+    else if (due <= day5) soon.push(t);
+    else later.push(t);
+  });
+
+  renderZone('zone-urgent', urgent);
+  renderZone('zone-soon', soon);
+  renderZone('zone-later', later);
+
+  document.getElementById('count-urgent').textContent = urgent.length;
+  document.getElementById('count-soon').textContent = soon.length;
+  document.getElementById('count-later').textContent = later.length;
+
+  document.getElementById('lastUpdated').textContent =
+    '更新: ' + new Date().toLocaleTimeString('ja-JP', {hour:'2-digit',minute:'2-digit'});
+}
+
+function renderZone(zoneId, list) {
+  const el = document.getElementById(zoneId);
+  if (list.length === 0) {
+    el.innerHTML = '<div class="empty-state">タスクなし</div>';
+    return;
+  }
+  el.innerHTML = list.sort((a,b) => new Date(a.due) - new Date(b.due))
+    .map(t => cardHTML(t)).join('');
+}
+
+function cardHTML(t) {
+  const due = new Date(t.due);
+  const dueStr = `${due.getMonth()+1}/${due.getDate()}`;
+  return `
+    <div class="task-card" data-id="${t.id}">
+      <div class="task-project">${esc(t.project)}</div>
+      <div class="task-name">${esc(t.task)}</div>
+      ${t.note ? `<div class="task-note">${esc(t.note)}</div>` : ''}
+      <div class="task-footer">
+        <span class="task-due">📅 ${dueStr}</span>
+        <button class="task-edit-btn" onclick="openEditModal('${t.id}')">✎ 編集</button>
+        <button class="task-done-btn" onclick="doneTask('${t.id}', ${JSON.stringify(esc(t.task))})">✓ 完了</button>
+      </div>
+    </div>`;
+}
+
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// タスク追加
+async function addTask() {
+  const project = document.getElementById('f-project').value.trim();
+  const due = document.getElementById('f-due').value;
+  const task = document.getElementById('f-task').value.trim();
+  const note = document.getElementById('f-note').value.trim();
+
+  if (!project || !due || !task) {
+    showToast('案件名・期日・タスク名は必須です！');
+    return;
+  }
+
+  const newTask = {
+    id: Date.now().toString(),
+    project, due, task, note,
+    createdAt: new Date().toISOString()
+  };
+
+  document.getElementById('submitBtn').disabled = true;
+
+  if (USE_LOCAL) {
+    tasks.push(newTask);
+    localStorage.setItem('taskboard_tasks', JSON.stringify(tasks));
+    clearForm();
+    render();
+    showToast('登録しました！');
+  } else {
+    try {
+      await fetch(GAS_URL, {
+        method: 'POST',
+        body: JSON.stringify({ action: 'addTask', task: newTask })
+      });
+      tasks.push(newTask);
+      clearForm();
+      render();
+      showToast('登録しました！');
+    } catch(e) {
+      showToast('登録エラーが発生しました。');
+    }
+  }
+
+  document.getElementById('submitBtn').disabled = false;
+}
+
+// モーダル管理
+let pendingDoneId = null;
+let editingId = null;
+
+// 編集モーダルを開く
+function openEditModal(id) {
+  const t = tasks.find(x => x.id === id);
+  if (!t) return;
+  editingId = id;
+  document.getElementById('e-project').value = t.project;
+  document.getElementById('e-due').value = t.due;
+  document.getElementById('e-task').value = t.task;
+  document.getElementById('e-note').value = t.note || '';
+  document.getElementById('editModal').classList.add('show');
+}
+
+function closeEditModal() {
+  editingId = null;
+  document.getElementById('editModal').classList.remove('show');
+}
+
+async function saveEdit() {
+  const project = document.getElementById('e-project').value.trim();
+  const due = document.getElementById('e-due').value;
+  const task = document.getElementById('e-task').value.trim();
+  const note = document.getElementById('e-note').value.trim();
+
+  if (!project || !due || !task) { showToast('案件名・期日・タスク名は必須です！'); return; }
+
+  const idx = tasks.findIndex(x => x.id === editingId);
+  if (idx === -1) return;
+
+  tasks[idx] = { ...tasks[idx], project, due, task, note };
+
+  if (USE_LOCAL) {
+    localStorage.setItem('taskboard_tasks', JSON.stringify(tasks));
+  } else {
+    try {
+      await fetch(GAS_URL, {
+        method: 'POST',
+        body: JSON.stringify({ action: 'updateTask', task: tasks[idx] })
+      });
+    } catch(e) { showToast('保存エラーが発生しました。'); return; }
+  }
+
+  closeEditModal();
+  render();
+  showToast('✏️ 更新しました！');
+}
+
+async function deleteFromEdit() {
+  if (!confirm('このタスクを削除しますか？')) return;
+  const id = editingId;
+  closeEditModal();
+  await removeTask(id, '削除しました。');
+}
+
+function doneTask(id, taskName) {
+  pendingDoneId = id;
+  document.getElementById('modalTaskName').textContent = taskName;
+  document.getElementById('doneModal').classList.add('show');
+}
+
+function closeModal() {
+  pendingDoneId = null;
+  document.getElementById('doneModal').classList.remove('show');
+}
+
+async function confirmDone() {
+  if (!pendingDoneId) return;
+  closeModal();
+  await removeTask(pendingDoneId, '🎉 完了しました！');
+}
+
+// 削除（間違え登録用・現在は未使用、将来の拡張用に残す）
+async function deleteTask(id) {
+  await removeTask(id, '削除しました。');
+}
+
+async function removeTask(id, msg) {
+  tasks = tasks.filter(t => t.id !== id);
+
+  if (USE_LOCAL) {
+    localStorage.setItem('taskboard_tasks', JSON.stringify(tasks));
+  } else {
+    try {
+      await fetch(GAS_URL, {
+        method: 'POST',
+        body: JSON.stringify({ action: 'deleteTask', id })
+      });
+    } catch(e) {}
+  }
+
+  render();
+  showToast(msg);
+}
+
+function clearForm() {
+  document.getElementById('f-project').value = '';
+  document.getElementById('f-task').value = '';
+  document.getElementById('f-note').value = '';
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  document.getElementById('f-due').valueAsDate = tomorrow;
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// 5分ごとに自動更新
+if (!USE_LOCAL) setInterval(fetchTasks, 5 * 60 * 1000);
+</script>
+</body>
+</html>
