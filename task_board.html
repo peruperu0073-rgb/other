@@ -524,6 +524,11 @@
   }
 
   .setup-banner strong { font-family: 'DM Mono', monospace; font-size: 12px; }
+   /* 入力中テキスト色 */
+  input:focus, textarea:focus {
+    color: #888888;
+  }
+
 </style>
 </head>
 <body>
@@ -534,6 +539,8 @@
     <div class="header-sub">/ タスク管理</div>
     <div class="last-updated" id="lastUpdated">—</div>
   </header>
+
+  
 
   <!-- GAS未設定時のバナー -->
   <div class="setup-banner" id="setupBanner" style="display:none;">
