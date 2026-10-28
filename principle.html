@@ -415,7 +415,7 @@
       <div class="mode">
         <div class="mode-inner" role="tablist">
           <button type="button" id="modeOld" onclick="setMode('old')">穴あきの円環</button>
-          <button type="button" id="modeNew" class="on" onclick="setMode('new')">ふつうの円環</button>
+          <button type="button" id="modeNew" class="on" onclick="setMode('new')">臨在の円環</button>
         </div>
       </div>
 
@@ -552,7 +552,7 @@
       short: "確証",
       title: "確証",
       desc: "現れた形が「ほらね」と受け取られ、<br>最初の自己像が再確認される。<br>こうして円環が閉じ、また回り出す。",
-      old: "「やはり、困難でしょう」",
+      old: "「やっぱり、困難でしょう？」",
       now: "「やっぱり、ふつうに流れてくる」"
     },
   ];
@@ -678,7 +678,7 @@
     dNum.textContent = (current + 1) + " / " + n;
     dTitle.textContent = s.title;
     dDesc.innerHTML = s.desc;
-    dEx.innerHTML = '<span class="tag">' + (mode === "old" ? "穴あきの円環では" : "ふつうの円環では") + '</span>' +
+    dEx.innerHTML = '<span class="tag">' + (mode === "old" ? "穴あきの円環では" : "臨在の円環では") + '</span>' +
       (mode === "old" ? s.old : s.now);
   }
 
