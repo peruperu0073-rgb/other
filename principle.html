@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow, noarchive">
+
+<!-- ホーム画面から開いた時、アプリのように全画面で表示 -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<!-- アイコンの下に出る名前 -->
+<meta name="apple-mobile-web-app-title" content="原理">
+<meta name="theme-color" content="#F5F3EC">
+<!-- ホーム画面のアイコン(同じフォルダに置く。別のアイコンにしたい時はファイル名を変える) -->
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+
+<title>原理</title>
+
+<style>
+  :root {
+    --bg:        #F5F3EC;
+    --bg-glow:   #ECE8F3;
+    --card:      rgba(255, 255, 255, 0.8);
+    --ink:       #34373F;
+    --ink-soft:  #7A7C88;
+    --indigo:    #4D5B8E;
+    --indigo-soft:#C3C9DE;
+    --gold:      #C9A15A;
+    --gold-soft: #E8D3A8;
+    --line:      rgba(77, 91, 142, 0.22);
+    --mincho: "Hiragino Mincho ProN", "Yu Mincho", "YuMincho", "Noto Serif JP", serif;
+    --gothic: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { -webkit-text-size-adjust: 100%; }
+
+  body {
+    min-height: 100vh;
+    min-height: 100dvh;
+    background:
+      radial-gradient(120% 55% at 50% 0%, var(--bg-glow) 0%, transparent 70%),
+      var(--bg);
+    color: var(--ink);
+    font-family: var(--mincho);
+    line-height: 2;
+    letter-spacing: 0.06em;
+    -webkit-font-smoothing: antialiased;
+    padding:
+      calc(env(safe-area-inset-top) + 40px)
+      calc(env(safe-area-inset-right) + 20px)
+      calc(env(safe-area-inset-bottom) + 48px)
+      calc(env(safe-area-inset-left) + 20px);
+  }
+
+  main {
+    max-width: 540px;
+    margin: 0 auto;
+    animation: rise 1.4s ease both;
+  }
+
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: none; }
+  }
+
+  .label {
+    font-family: var(--gothic);
+    font-size: 11px;
+    letter-spacing: 0.32em;
+    color: var(--indigo);
+    text-align: center;
+    margin-bottom: 24px;
+  }
+
+  h1 {
+    font-weight: 500;
+    font-size: 24px;
+    letter-spacing: 0.3em;
+    text-align: center;
+    margin-bottom: 8px;
+  }
+
+  .subtitle {
+    font-size: 14px;
+    color: var(--ink-soft);
+    text-align: center;
+    margin-bottom: 36px;
+  }
+
+  h2 {
+    font-weight: 500;
+    font-size: 18px;
+    letter-spacing: 0.16em;
+    text-align: center;
+    margin-bottom: 10px;
+  }
+
+  .lead {
+    font-size: 13.5px;
+    color: var(--ink-soft);
+    text-align: center;
+    line-height: 2;
+    margin-bottom: 22px;
+  }
+
+  .divider {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    margin: 48px 0;
+    color: var(--gold);
+  }
+  .divider::before,
+  .divider::after {
+    content: "";
+    width: 56px;
+    height: 1px;
+    background: var(--line);
+  }
+  .divider svg { width: 14px; height: 14px; }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    padding: 26px 20px 22px;
+    box-shadow: 0 10px 40px -24px rgba(60, 70, 120, 0.35);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+  }
+
+  /* ── 円環 ── */
+  .mode {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 18px;
+  }
+  .mode-inner {
+    display: inline-flex;
+    border: 1px solid var(--indigo-soft);
+    border-radius: 999px;
+    padding: 3px;
+    background: rgba(255,255,255,0.6);
+  }
+  .mode button {
+    font-family: var(--gothic);
+    font-size: 11.5px;
+    letter-spacing: 0.14em;
+    color: var(--indigo);
+    background: transparent;
+    border: none;
+    border-radius: 999px;
+    padding: 8px 16px;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: background 0.3s ease, color 0.3s ease;
+  }
+  .mode button.on {
+    background: var(--indigo);
+    color: #fff;
+  }
+
+  .ring-wrap { position: relative; }
+  svg.ring { display: block; width: 100%; height: auto; }
+
+  .ring .track { fill: none; stroke: var(--indigo-soft); stroke-width: 1.4; }
+  .ring .arrow { fill: var(--indigo-soft); }
+  .ring .node circle {
+    fill: #fff;
+    stroke: var(--indigo-soft);
+    stroke-width: 1.4;
+    transition: fill 0.3s ease, stroke 0.3s ease;
+  }
+  .ring .node text {
+    font-family: var(--mincho);
+    font-size: 13px;
+    fill: var(--ink);
+    text-anchor: middle;
+    dominant-baseline: central;
+    pointer-events: none;
+    letter-spacing: 0.04em;
+  }
+  .ring .node .num {
+    font-family: var(--gothic);
+    font-size: 8.5px;
+    fill: var(--ink-soft);
+    letter-spacing: 0.1em;
+  }
+  .ring .node { cursor: pointer; outline: none; -webkit-tap-highlight-color: transparent; }
+  .ring .node.on circle { fill: var(--indigo); stroke: var(--indigo); }
+  .ring .node.on text { fill: #fff; }
+  .ring .node.on .num { fill: var(--indigo-soft); }
+  .ring .center-glow { fill: url(#glow); }
+  .ring .center-t {
+    font-family: var(--mincho);
+    font-size: 15px;
+    fill: var(--gold);
+    text-anchor: middle;
+    letter-spacing: 0.12em;
+  }
+  .ring .center-s {
+    font-family: var(--gothic);
+    font-size: 8.5px;
+    fill: var(--ink-soft);
+    text-anchor: middle;
+    letter-spacing: 0.14em;
+  }
+
+  .hint {
+    font-family: var(--gothic);
+    font-size: 10.5px;
+    letter-spacing: 0.16em;
+    color: var(--ink-soft);
+    text-align: center;
+    margin-top: 4px;
+  }
+
+  .detail { margin-top: 18px; }
+  .detail .d-num {
+    font-family: var(--gothic);
+    font-size: 10.5px;
+    letter-spacing: 0.3em;
+    color: var(--indigo);
+    text-align: center;
+  }
+  .detail .d-title {
+    font-size: 18px;
+    letter-spacing: 0.16em;
+    text-align: center;
+    margin: 4px 0 12px;
+  }
+  .detail .d-desc {
+    font-size: 14.5px;
+    line-height: 2.05;
+    text-align: center;
+  }
+  .detail .d-ex {
+    margin-top: 16px;
+    padding: 14px 16px;
+    border-radius: 14px;
+    background: var(--bg-glow);
+    font-size: 14px;
+    line-height: 2;
+    text-align: center;
+  }
+  .detail .d-ex .tag {
+    display: block;
+    font-family: var(--gothic);
+    font-size: 10px;
+    letter-spacing: 0.24em;
+    color: var(--indigo);
+    margin-bottom: 2px;
+  }
+  .fadeable { transition: opacity 0.4s ease; }
+  .fade { opacity: 0; }
+
+  .step-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 16px;
+  }
+  .btn {
+    font-family: var(--gothic);
+    font-size: 12px;
+    letter-spacing: 0.2em;
+    color: var(--indigo);
+    background: transparent;
+    border: 1px solid var(--indigo-soft);
+    border-radius: 999px;
+    padding: 9px 20px;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: background 0.3s ease;
+  }
+  .btn:active { background: var(--bg-glow); }
+
+  .same-note {
+    font-size: 13.5px;
+    line-height: 2.05;
+    text-align: center;
+    color: var(--ink-soft);
+    margin-top: 22px;
+  }
+
+  /* ── 見取り図 ── */
+  .points { counter-reset: pt; }
+  .point {
+    position: relative;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 18px 18px 16px 52px;
+    margin-bottom: 12px;
+  }
+  .point::before {
+    counter-increment: pt;
+    content: counter(pt);
+    position: absolute;
+    left: 16px;
+    top: 18px;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 1px solid var(--indigo-soft);
+    font-family: var(--gothic);
+    font-size: 11px;
+    color: var(--indigo);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .point h3 {
+    font-weight: 500;
+    font-size: 15.5px;
+    letter-spacing: 0.08em;
+    line-height: 1.8;
+    margin-bottom: 6px;
+  }
+  .point p {
+    font-size: 13.5px;
+    line-height: 2;
+  }
+  .point .cite {
+    display: block;
+    margin-top: 6px;
+    font-family: var(--gothic);
+    font-size: 10.5px;
+    letter-spacing: 0.08em;
+    color: var(--ink-soft);
+  }
+
+  /* ── 魔法のランプ ── */
+  .lamp {
+    text-align: center;
+    padding: 34px 22px 30px;
+    background:
+      radial-gradient(90% 60% at 50% 0%, rgba(232, 211, 168, 0.45) 0%, transparent 70%),
+      var(--card);
+    border-color: rgba(201, 161, 90, 0.35);
+  }
+  .lamp .label { color: var(--gold); margin-bottom: 16px; }
+  .lamp svg.lamp-icon { width: 54px; height: 32px; color: var(--gold); margin-bottom: 10px; }
+  .lamp h2 { margin-bottom: 22px; }
+  .lamp p {
+    font-size: 15px;
+    line-height: 2.15;
+    margin-bottom: 1em;
+  }
+  .lamp p:last-child { margin-bottom: 0; }
+  .lamp .quote {
+    font-size: 13.5px;
+    line-height: 2;
+    color: var(--ink-soft);
+    border-top: 1px solid rgba(201, 161, 90, 0.3);
+    border-bottom: 1px solid rgba(201, 161, 90, 0.3);
+    padding: 14px 4px;
+    margin: 22px 0;
+  }
+  .lamp .quote .src {
+    display: block;
+    font-family: var(--gothic);
+    font-size: 10.5px;
+    letter-spacing: 0.1em;
+    margin-top: 6px;
+  }
+  .lamp .last {
+    font-size: 16.5px;
+    color: var(--ink);
+  }
+
+  nav {
+    margin-top: 44px;
+    display: flex;
+    justify-content: center;
+    gap: 22px;
+    flex-wrap: wrap;
+  }
+  nav a {
+    font-family: var(--gothic);
+    font-size: 12px;
+    letter-spacing: 0.22em;
+    color: var(--indigo);
+    text-decoration: none;
+  }
+
+  footer {
+    margin-top: 28px;
+    text-align: center;
+    font-family: var(--gothic);
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    color: var(--indigo-soft);
+  }
+</style>
+</head>
+<body>
+<main>
+
+  <!-- ── タイトル ── -->
+  <p class="label">THE PRINCIPLE</p>
+  <h1>原理</h1>
+  <p class="subtitle">現実は、抱えている自己像の、忠実な映し絵</p>
+
+  <!-- ── 円環 ── -->
+  <section>
+    <h2>原理の円環</h2>
+    <p class="lead">一方向の因果ではなく、ぐるっと回る円環。<br>すべてを照らしている光が「自己」。</p>
+
+    <div class="card">
+      <div class="mode">
+        <div class="mode-inner" role="tablist">
+          <button type="button" id="modeOld" onclick="setMode('old')">穴あきの円環</button>
+          <button type="button" id="modeNew" class="on" onclick="setMode('new')">ふつうの円環</button>
+        </div>
+      </div>
+
+      <div class="ring-wrap">
+        <svg class="ring" id="ring" viewBox="0 0 340 340" aria-label="原理の円環"></svg>
+      </div>
+      <p class="hint">ひとつずつ、タップして確かめる</p>
+
+      <div class="detail">
+        <p class="d-num fadeable" id="dNum"></p>
+        <p class="d-title fadeable" id="dTitle"></p>
+        <p class="d-desc fadeable" id="dDesc"></p>
+        <div class="d-ex fadeable" id="dEx"></div>
+      </div>
+
+      <div class="step-buttons">
+        <button class="btn" type="button" onclick="move(-1)">← まえ</button>
+        <button class="btn" type="button" onclick="move(1)">つぎ →</button>
+      </div>
+
+      <p class="same-note">穴あきでも、ふつうでも、<br>原理はまったく同じ順番で、<br>同じ忠実さで働いている。<br>違うのは、出発点に何を置いたかだけ。</p>
+    </div>
+  </section>
+
+  <div class="divider" aria-hidden="true">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0 L14 10 L24 12 L14 14 L12 24 L10 14 L0 12 L10 10 Z"/></svg>
+  </div>
+
+  <!-- ── 見取り図 ── -->
+  <section>
+    <h2>原理の見取り図</h2>
+    <p class="lead">現実と信念の関係を、<br>迷った時に見返すための要点。</p>
+
+    <div class="points" id="points"></div>
+  </section>
+
+  <div class="divider" aria-hidden="true">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0 L14 10 L24 12 L14 14 L12 24 L10 14 L0 12 L10 10 Z"/></svg>
+  </div>
+
+  <!-- ── 魔法のランプ ── -->
+  <section class="card lamp">
+    <svg class="lamp-icon" viewBox="0 0 64 36" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M8 22 C14 30 40 32 46 24 L58 14 C60 12 62 14 60 16 L50 26"/>
+      <path d="M8 22 C4 20 4 16 8 15 C12 14 14 18 12 21"/>
+      <path d="M18 18 C22 12 34 12 38 18"/>
+      <path d="M28 12 L28 9"/>
+      <circle cx="28" cy="7" r="1.6" fill="currentColor"/>
+      <path d="M20 30 L36 30"/>
+    </svg>
+    <p class="label">GRACE</p>
+    <h2>この原理こそが、恩寵</h2>
+
+    <p>この原理は、<br>願いの良し悪しを審査しない。<br>相手を選ばない。<br>一度も弱まったことがない。</p>
+
+    <p>困難に見える現実も、<br>受け取らない私も、<br>原理が確かに働いていた証拠。<br>不在にさえ確かな実体を与えられる力が、<br>もう備わっている。</p>
+
+    <p>それは、魔法のランプが<br>すでに手の中にあるのと同じこと。<br>ランプはいつも、こすられている。<br>こすっているのは、<br>私が抱えている自己像。</p>
+
+    <div class="quote">
+      忘れてならないことは、創造の原理は、<br>あなたの考えが良いか悪いか、<br>または正しいかまちがっているかを検討することはしないで、<br>あなたの考えや暗示の質に応じて反応します。
+      <span class="src">— マーフィー博士の教えより</span>
+    </div>
+
+    <p>だから、することはひとつだけ。<br>何を「在る」とするかを、選ぶこと。</p>
+
+    <p>原理が忠実であることは、<br>恐れる理由ではなく、<br>安心していい理由。</p>
+
+    <p class="last">この力に、穴はない。<br>それは、新しく置いたものにも<br>同じ忠実さで働くという、約束。</p>
+  </section>
+
+  <nav>
+    <a href="index.html">信条 ✦</a>
+    <a href="surrender.html">明け渡し ☽</a>
+    <a href="ordinary.html">ふつうの日 〰</a>
+  </nav>
+
+  <footer>◯</footer>
+
+</main>
+
+<script>
+  /* ──────────────────────────────────────────
+     ① 円環の各段階
+     short: 円の中に出る短い名前(2〜3文字くらい)
+     title: 詳細の見出し / desc: 説明
+     old: 穴あきの円環での例 / now: ふつうの円環での例
+     ※ 改行したい所には <br>
+  ────────────────────────────────────────── */
+  const stages = [
+    {
+      short: "自己像",
+      title: "自己像",
+      desc: "疑いなく当然だと信じている前提。<br>円環の出発点であり、<br>手を入れることができる場所。",
+      old: "私は受け取らない者。<br>流れは外側にあって、私には変えられない。",
+      now: "私は受け取る水道管。<br>流れは穴なく巡り、私のところでも満ちる。"
+    },
+    {
+      short: "焦点",
+      title: "焦点",
+      desc: "自己像に沿って、何に目が向くかが決まる。<br>描けない人の前にも、光と影は最初から在る。<br>違うのは、着眼点だけ。",
+      old: "増える固定費、見えない案件、<br>単価と物量の計算。",
+      now: "喜びの景色、すでに巡っている流れ、<br>ふと届くご縁。"
+    },
+    {
+      short: "知覚",
+      title: "知覚",
+      desc: "焦点が合ったものが、<br>そのように「在る」ものとして知覚される。<br>見え方と現実は、一本の流れの手前と奥。",
+      old: "届いた提案が<br>「さらなる負担」に見える。",
+      now: "同じ提案が、<br>流れが運んできたものの一つに見える。"
+    },
+    {
+      short: "思考<br>感情",
+      title: "思考と感情",
+      desc: "知覚に沿って出力される。<br>原因を語る顔をしているが、<br>すでに自己像の出力結果。",
+      old: "「どう賄うか」「本当に大丈夫？」<br>プレッシャーと力み。",
+      now: "「なんか余った」くらいの軽さ。<br>ワクワクと、ありがたさ。"
+    },
+    {
+      short: "行動",
+      title: "行動",
+      desc: "出力に沿って選ばれる行動の質。<br>同じ手の動きでも、<br>どこから動くかで質が変わる。",
+      old: "埋める、守る、逆算する、<br>取りに行く。",
+      now: "喜んで受ける、のびのび作る、<br>ふと湧いた衝動に軽やかに乗る。"
+    },
+    {
+      short: "形",
+      title: "形（舞台）",
+      desc: "行動と知覚の結果として現れる舞台装置。<br>物理は原因ではなく結果であり、<br>それ自体に動力はない。",
+      old: "仕事が少ない、<br>固定費が増える、という演目。",
+      now: "嬉しい仕事が自然に舞い込み、<br>利益が巡る、という演目。"
+    },
+    {
+      short: "確証",
+      title: "確証",
+      desc: "現れた形が「ほらね」と受け取られ、<br>最初の自己像が再確認される。<br>こうして円環が閉じ、また回り出す。",
+      old: "「やはり、困難でしょう」",
+      now: "「やっぱり、ふつうに流れてくる」"
+    },
+  ];
+
+  /* ──────────────────────────────────────────
+     ② 原理の見取り図
+     書き方:{ title: "見出し", text: "本文", cite: "出典(なければ空)" },
+  ────────────────────────────────────────── */
+  const points = [
+    {
+      title: "抱えている自己像が、全ての体験を作っている",
+      text: "疑いなく当然だと信じている前提、つまり無意識が、知覚と言語化の根本になっている。信念という無意識の領域から、知覚できる形への焦点が生まれる。その焦点が合うことが「顕在化」。",
+      cite: "2026.10.27 の気づき"
+    },
+    {
+      title: "思考は、原因ではなく出力",
+      text: "「〜しなきゃ」「なぜなら〜」「だから〜」と原因を語る顔をしていても、思考はすでに信念が出力した結果の表現。思考が先にあって現実が知覚され、思考は動機にもなっている。",
+      cite: "2026.10.28〜29 の気づき"
+    },
+    {
+      title: "形は、原因ではなく舞台装置",
+      text: "物理は困りごとの原因ではなく、困りごとを上演するための舞台装置。2D上映が無形の顕在、4D上映が物理の顕在。どちらの上映も、その次元ではない層に支えられていて、それこそが愛である。",
+      cite: "2026.10.27 の気づき"
+    },
+    {
+      title: "動力は、いつも無形の側にある",
+      text: "物理の世界は結果の世界で、それ自体には動力がない。形を作るパワーは無形の領域にあり、目に見えず輪郭もないので、探す対象ではない。物理法則もまた、源が形として現れる時の秩序ある表現。",
+      cite: "2026.10.27〜28 の気づき"
+    },
+    {
+      title: "見え方と現実は、分かれていない",
+      text: "「見え方と実際に起こることは別」という問い自体が、分離の信念から出ている。実際の現実を、見え方を通さずに確かめたことは一度もない。見え方が変わると、焦点が変わり、選ぶものが変わり、手の動く先が変わり、舞台の形も変わっていく。",
+      cite: "2026.10.28 の気づき"
+    },
+    {
+      title: "構うことができるのは、信念の側",
+      text: "私たちが構うことができるのは、潜在意識そのものではなく、信念と顕在意識の方。そして信念を変えるには、まずその信念を抱え込む抵抗をやめていくこと。求めている性質は新たに手に入れるものではないので、気付くだけでいい。",
+      cite: "マーフィー博士・ホーキンズ博士の教えより"
+    },
+    {
+      title: "原理は、狂っていない",
+      text: "今の状況は、原理が狂っているのではなく、確信されている自己像を、原理が忠実に形にしているだけ。在らせる力は一度も弱まっておらず、限定性なく、誰にでも降り注いでいる。",
+      cite: "2026.10.28 の気づき"
+    },
+    {
+      title: "手を入れるのは、出発点",
+      text: "数字や提案や思考の側を動かそうとするのではなく、円環の出発点である自己像に手を入れる。新しい自己像は、こしらえるものではなく、もともと在る「自己」の性質を認めるもの。置いた瞬間に、もう景色は変わっている。",
+      cite: "2026.10.28 の気づき"
+    },
+  ];
+
+  /* ── 円環を描く ── */
+  const NS = "http://www.w3.org/2000/svg";
+  const ring = document.getElementById("ring");
+  const C = 170, R = 128, NODE_R = 27;
+  let current = 0;
+  let mode = "new";
+
+  function el(name, attrs) {
+    const e = document.createElementNS(NS, name);
+    for (const k in attrs) e.setAttribute(k, attrs[k]);
+    return e;
+  }
+
+  // 中心の光
+  const defs = el("defs", {});
+  const grad = el("radialGradient", { id: "glow" });
+  grad.appendChild(el("stop", { offset: "0%", "stop-color": "#F3DFB4", "stop-opacity": "0.95" }));
+  grad.appendChild(el("stop", { offset: "100%", "stop-color": "#F3DFB4", "stop-opacity": "0" }));
+  defs.appendChild(grad);
+  ring.appendChild(defs);
+  ring.appendChild(el("circle", { cx: C, cy: C, r: 70, class: "center-glow" }));
+
+  // 軌道
+  ring.appendChild(el("circle", { cx: C, cy: C, r: R, class: "track" }));
+
+  const n = stages.length;
+  const angle = i => (-90 + (360 / n) * i) * Math.PI / 180;
+
+  // 矢印(各ノードの間に)
+  for (let i = 0; i < n; i++) {
+    const a = (angle(i) + angle(i + 1)) / 2;
+    const x = C + R * Math.cos(a), y = C + R * Math.sin(a);
+    const deg = a * 180 / Math.PI + 90;
+    const tri = el("path", { d: "M -4 -4 L 4 0 L -4 4 Z", class: "arrow",
+      transform: "translate(" + x + "," + y + ") rotate(" + (deg - 90) + ")" });
+    ring.appendChild(tri);
+  }
+
+  // 中心の文字
+  const t1 = el("text", { x: C, y: C - 2, class: "center-t" }); t1.textContent = "「自己」";
+  const t2 = el("text", { x: C, y: C + 18, class: "center-s" }); t2.textContent = "すべてを照らす光";
+  ring.appendChild(t1); ring.appendChild(t2);
+
+  // ノード
+  const nodes = [];
+  stages.forEach((s, i) => {
+    const x = C + R * Math.cos(angle(i)), y = C + R * Math.sin(angle(i));
+    const g = el("g", { class: "node", tabindex: "0", role: "button", "aria-label": s.title });
+    g.appendChild(el("circle", { cx: x, cy: y, r: NODE_R }));
+    const lines = s.short.split("<br>");
+    lines.forEach((ln, k) => {
+      const ty = y + (k - (lines.length - 1) / 2) * 14 + 2;
+      const t = el("text", { x: x, y: ty }); t.textContent = ln;
+      g.appendChild(t);
+    });
+    const num = el("text", { x: x, y: y - NODE_R - 8, class: "num" }); num.textContent = String(i + 1);
+    g.appendChild(num);
+    g.addEventListener("click", () => select(i));
+    g.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); select(i); } });
+    ring.appendChild(g);
+    nodes.push(g);
+  });
+
+  const dNum = document.getElementById("dNum");
+  const dTitle = document.getElementById("dTitle");
+  const dDesc = document.getElementById("dDesc");
+  const dEx = document.getElementById("dEx");
+
+  function renderDetail() {
+    const s = stages[current];
+    nodes.forEach((g, i) => g.classList.toggle("on", i === current));
+    dNum.textContent = (current + 1) + " / " + n;
+    dTitle.textContent = s.title;
+    dDesc.innerHTML = s.desc;
+    dEx.innerHTML = '<span class="tag">' + (mode === "old" ? "穴あきの円環では" : "ふつうの円環では") + '</span>' +
+      (mode === "old" ? s.old : s.now);
+  }
+
+  function withFade(fn) {
+    const els = [dNum, dTitle, dDesc, dEx];
+    els.forEach(e => e.classList.add("fade"));
+    setTimeout(() => { fn(); els.forEach(e => e.classList.remove("fade")); }, 350);
+  }
+
+  function select(i) { withFade(() => { current = i; renderDetail(); }); }
+  function move(d) { select((current + d + n) % n); }
+
+  function setMode(m) {
+    mode = m;
+    document.getElementById("modeOld").classList.toggle("on", m === "old");
+    document.getElementById("modeNew").classList.toggle("on", m === "new");
+    withFade(renderDetail);
+  }
+
+  renderDetail();
+
+  /* ── 見取り図 ── */
+  const pointsEl = document.getElementById("points");
+  points.forEach(p => {
+    const d = document.createElement("div");
+    d.className = "point";
+    d.innerHTML = '<h3>' + p.title + '</h3><p>' + p.text + '</p>' +
+      (p.cite ? '<span class="cite">— ' + p.cite + '</span>' : "");
+    pointsEl.appendChild(d);
+  });
+</script>
+</body>
+</html>
