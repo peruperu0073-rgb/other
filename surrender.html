@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow, noarchive">
+
+<!-- ホーム画面から開いた時、アプリのように全画面で表示 -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<!-- アイコンの下に出る名前 -->
+<meta name="apple-mobile-web-app-title" content="明け渡し">
+<meta name="theme-color" content="#1D2133">
+<!-- ホーム画面のアイコン(同じフォルダに置く。別のアイコンにしたい時はファイル名を変える) -->
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+
+<title>明け渡し</title>
+
+<style>
+  :root {
+    --bg:        #1D2133;
+    --bg-glow:   #2F3456;
+    --card:      rgba(255, 255, 255, 0.055);
+    --card-2:    rgba(255, 255, 255, 0.035);
+    --ink:       #EEE7D9;
+    --ink-soft:  #A8A2B8;
+    --gold:      #D9B56E;
+    --gold-soft: #8E7A55;
+    --line:      rgba(217, 181, 110, 0.26);
+    --mincho: "Hiragino Mincho ProN", "Yu Mincho", "YuMincho", "Noto Serif JP", serif;
+    --gothic: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { -webkit-text-size-adjust: 100%; }
+
+  body {
+    min-height: 100vh;
+    min-height: 100dvh;
+    background:
+      radial-gradient(120% 55% at 50% 0%, var(--bg-glow) 0%, transparent 70%),
+      var(--bg);
+    color: var(--ink);
+    font-family: var(--mincho);
+    line-height: 2;
+    letter-spacing: 0.06em;
+    -webkit-font-smoothing: antialiased;
+    padding:
+      calc(env(safe-area-inset-top) + 40px)
+      calc(env(safe-area-inset-right) + 24px)
+      calc(env(safe-area-inset-bottom) + 48px)
+      calc(env(safe-area-inset-left) + 24px);
+  }
+
+  main {
+    max-width: 520px;
+    margin: 0 auto;
+    animation: rise 1.4s ease both;
+  }
+
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: none; }
+  }
+
+  /* 見出し */
+  .label {
+    font-family: var(--gothic);
+    font-size: 11px;
+    letter-spacing: 0.32em;
+    color: var(--gold);
+    text-align: center;
+    margin-bottom: 28px;
+  }
+
+  h1 {
+    font-weight: 500;
+    font-size: 22px;
+    letter-spacing: 0.18em;
+    text-align: center;
+    margin-bottom: 32px;
+  }
+
+  h2 {
+    font-weight: 500;
+    font-size: 18px;
+    letter-spacing: 0.16em;
+    text-align: center;
+    margin-bottom: 10px;
+  }
+
+  .lead {
+    font-size: 13.5px;
+    color: var(--ink-soft);
+    text-align: center;
+    line-height: 2;
+    margin-bottom: 26px;
+  }
+
+  /* 明け渡しの信条 */
+  .creed p {
+    font-size: 16px;
+    line-height: 2.15;
+    text-align: center;
+    margin-bottom: 0.9em;
+  }
+  .creed p:last-child { margin-bottom: 0; }
+
+  /* 月の区切り */
+  .divider {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    margin: 44px 0;
+    color: var(--gold);
+  }
+  .divider::before,
+  .divider::after {
+    content: "";
+    width: 56px;
+    height: 1px;
+    background: var(--line);
+  }
+  .divider svg { width: 14px; height: 14px; }
+
+  /* カード共通 */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    padding: 30px 22px 24px;
+    box-shadow: 0 14px 44px -24px rgba(0, 0, 0, 0.6);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+  }
+
+  /* ひもとく(手順) */
+  .step-count {
+    font-family: var(--gothic);
+    font-size: 11px;
+    letter-spacing: 0.3em;
+    color: var(--gold);
+    text-align: center;
+    margin-bottom: 10px;
+  }
+  .step-title {
+    font-size: 17px;
+    text-align: center;
+    letter-spacing: 0.14em;
+    margin-bottom: 16px;
+  }
+  .step-body {
+    font-size: 15px;
+    line-height: 2.1;
+    text-align: center;
+    min-height: 9em;
+  }
+  .step-body .whisper {
+    display: block;
+    margin-top: 14px;
+    font-size: 13px;
+    color: var(--ink-soft);
+  }
+  .fadeable { transition: opacity 0.5s ease; }
+  .fade { opacity: 0; }
+
+  .dots {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin: 22px 0 4px;
+  }
+  .dots span {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--line);
+    transition: background 0.4s ease;
+  }
+  .dots span.on { background: var(--gold); }
+
+  .buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 18px;
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    font-family: var(--gothic);
+    font-size: 12px;
+    letter-spacing: 0.2em;
+    color: var(--gold);
+    background: transparent;
+    border: 1px solid var(--gold-soft);
+    border-radius: 999px;
+    padding: 10px 22px;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: background 0.3s ease;
+  }
+  .btn:active { background: var(--bg-glow); }
+  .btn[hidden] { display: none; }
+
+  /* 見つけた自己像 */
+  .finds { margin-top: 8px; }
+  details {
+    background: var(--card-2);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    margin-bottom: 10px;
+    overflow: hidden;
+  }
+  summary {
+    list-style: none;
+    cursor: pointer;
+    padding: 14px 18px;
+    font-size: 14.5px;
+    line-height: 1.9;
+    -webkit-tap-highlight-color: transparent;
+    position: relative;
+    padding-right: 40px;
+  }
+  summary::-webkit-details-marker { display: none; }
+  summary::after {
+    content: "＋";
+    position: absolute;
+    right: 18px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-family: var(--gothic);
+    font-size: 12px;
+    color: var(--gold);
+  }
+  details[open] summary::after { content: "－"; }
+  .find-date {
+    display: block;
+    font-family: var(--gothic);
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--ink-soft);
+  }
+  .find-body {
+    padding: 0 18px 16px;
+    font-size: 14px;
+    line-height: 2;
+  }
+  .find-body .arrow {
+    display: block;
+    text-align: center;
+    color: var(--gold);
+    font-size: 12px;
+    margin: 2px 0 4px;
+  }
+  .find-body .origin {
+    display: block;
+    text-align: center;
+    color: var(--gold);
+  }
+
+  /* 今夜の一節 */
+  .passage { margin-top: 56px; }
+  .passage .label { margin-bottom: 20px; }
+
+  #quote {
+    font-size: 15.5px;
+    line-height: 2.1;
+    text-align: center;
+    min-height: 6.3em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  #source {
+    font-family: var(--gothic);
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    color: var(--ink-soft);
+    text-align: center;
+    margin-top: 18px;
+  }
+
+  .again { display: block; margin: 22px auto 0; }
+
+  .to-other {
+    display: block;
+    text-align: center;
+    margin-top: 44px;
+    font-family: var(--gothic);
+    font-size: 12px;
+    letter-spacing: 0.24em;
+    color: var(--gold);
+    text-decoration: none;
+  }
+
+  footer {
+    margin-top: 28px;
+    text-align: center;
+    font-family: var(--gothic);
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    color: var(--gold-soft);
+  }
+</style>
+</head>
+<body>
+<main>
+
+  <!-- ── 明け渡しの信条 ── -->
+  <section class="creed">
+    <p class="label">SURRENDER</p>
+    <h1>現実は、信念の上演</h1>
+    <p>今、見えている困難は、<br>困難の原因ではなく、<br>信念が借りているコンテントの姿。</p>
+    <p>思考は、原因を語る顔をした、<br>出力結果。</p>
+    <p>原理は一度も弱まっていない。<br>確信されているものを、<br>そのまま忠実に形にしている。</p>
+    <p>だから、手を入れるのは形ではなく、<br>出発点の自己像。</p>
+    <p>見つけたものは責めずに、<br>抵抗ごと、分からなさごと、<br>「自己」へ預ければいい。</p>
+  </section>
+
+  <div class="divider" aria-hidden="true">
+    <!-- 三日月 -->
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M15.5 2.5a9.5 9.5 0 1 0 6 16.9A8 8 0 0 1 15.5 2.5Z"/></svg>
+  </div>
+
+  <!-- ── ひもとく ── -->
+  <section>
+    <h2>ひもとく</h2>
+    <p class="lead">ネガティブな知覚に気付いた時に、<br>ひとつずつ、ゆっくりと。</p>
+
+    <div class="card">
+      <p class="step-count fadeable" id="stepCount"></p>
+      <p class="step-title fadeable" id="stepTitle"></p>
+      <p class="step-body fadeable" id="stepBody"></p>
+      <div class="dots" id="dots" aria-hidden="true"></div>
+      <div class="buttons">
+        <button class="btn" type="button" id="prevBtn" onclick="go(-1)">もどる</button>
+        <button class="btn" type="button" id="nextBtn" onclick="go(1)">つぎへ</button>
+        <button class="btn" type="button" id="restartBtn" onclick="restart()" hidden>はじめから</button>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider" aria-hidden="true">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M15.5 2.5a9.5 9.5 0 1 0 6 16.9A8 8 0 0 1 15.5 2.5Z"/></svg>
+  </div>
+
+  <!-- ── 見つけた自己像 ── -->
+  <section>
+    <h2>見つけた自己像</h2>
+    <p class="lead">現実を通して見つけた信念と、<br>その奥に、もともと在るもの。</p>
+    <div class="finds" id="finds"></div>
+  </section>
+
+  <!-- ── 今夜の一節 ── -->
+  <section class="card passage">
+    <p class="label">TONIGHT'S PASSAGE</p>
+    <p id="quote" class="fadeable"></p>
+    <p id="source" class="fadeable"></p>
+    <button class="btn again" type="button" onclick="showPassage()">もうひとつ</button>
+  </section>
+
+  <a class="to-other" href="index.html">信条のページへ ✦</a>
+
+  <footer>☽</footer>
+
+</main>
+
+<script>
+  /* ──────────────────────────────────────────
+     ① ひもとく手順
+     書き方:{ title: "見出し", body: "本文", whisper: "小さな添え書き" },
+     ※ 改行したい所には <br> を入れる
+  ────────────────────────────────────────── */
+  const steps = [
+    {
+      title: "舞台に気付く",
+      body: "今、何が「困難」や「問題」として<br>見えていますか。<br>それは原因ではなく、<br>信念を上演している舞台装置。",
+      whisper: "「やはり」と思ったら、それは発見ではなく確認の言葉。"
+    },
+    {
+      title: "出力に気付く",
+      body: "心はどんな言葉を話していますか。<br>「〜しなきゃ」「本当に大丈夫？」<br>「誰がどう聞いても」<br>それは原因を語る顔をした、出力結果。",
+      whisper: "出てきた言葉は、そのまま眺めるだけでいい。"
+    },
+    {
+      title: "自己像に気付く",
+      body: "この舞台は、<br>どんな「私」を上演していますか。<br>「何かが間違っている」<br>「私は受け取らない」<br>「流れは外にあって変えられない」",
+      whisper: "下の「見つけた自己像」も手がかりに。"
+    },
+    {
+      title: "見返りに気付く",
+      body: "その椅子に座っていると、<br>何が守られていますか。<br>ちゃんとしている私、支える私、<br>間違えない私。",
+      whisper: "その奥には、周りの人を大切に思う愛が在る。"
+    },
+    {
+      title: "原理の確かさに気付く",
+      body: "原理は狂っていない。<br>確信をそのまま、忠実に形にしているだけ。<br>この力に、穴はない。",
+      whisper: "それは、新しく置いたものにも同じ忠実さで働くという約束。"
+    },
+    {
+      title: "明け渡す",
+      body: "心は何も知らない。<br>知らなくていい。<br>抵抗も、分からなさも、プライドも、<br>まるごと「自己」へ。",
+      whisper: "証明を探したくなったら、「あ、成分表」と笑うだけでいい。"
+    },
+    {
+      title: "もともと在るものを認める",
+      body: "何も間違っていない。<br>受け取ることは、<br>私の性質として、もともと在る。<br>私は神の水道管。",
+      whisper: "体の感じは、肯定的なほうへ向いていますか。"
+    }
+  ];
+
+  /* ──────────────────────────────────────────
+     ② 見つけた自己像
+     新しく見つけたら、ここに足していけばOK。
+     書き方:{ date: "日付", belief: "見つけた信念", origin: "もともと在るもの" },
+  ────────────────────────────────────────── */
+  const finds = [
+    { date: "2026.10.28", belief: "何かが間違っている", origin: "何も間違っていない。<br>原理は、いつも忠実に働いている。" },
+    { date: "2026.10.28", belief: "私は受け取らない者である", origin: "受け取ることは、<br>私の性質として、もともと在る。" },
+    { date: "2026.10.28", belief: "流れは私の外側（他人・数字・時間）にあって、<br>私には変えられない", origin: "流れは穴なく巡り、<br>私のところでも満ちる。" },
+    { date: "2026.10.28", belief: "私が支え、取りに行くしかない", origin: "私は神の水道管。<br>共に歩む人も、同じ流れを運んでいる。" },
+    { date: "2026.10.28", belief: "お金は限られた量で、出ていくと減る", origin: "お金は巡る流れ。<br>掴むものではなく、通すもの。" },
+    { date: "2026.10.28", belief: "物理の世界は無形から独立していて、<br>変えられようがない", origin: "見え方と現実は、一本の流れの手前と奥。<br>物理も、源の秩序ある表現。" },
+  ];
+
+  /* ──────────────────────────────────────────
+     ③ 今夜の一節
+     書き方:{ text: "本文", source: "出典" },
+  ────────────────────────────────────────── */
+  const passages = [
+    { text: "困難に見えるものは、困難の原因ではない。<br>「困難だ」という信念が、<br>コンテントの姿を借りて出てきているだけ。", source: "2026.10.28 の気づき" },
+    { text: "「やはり」は、発見の言葉ではなく、<br>確認の言葉。<br>信念が、自分を確かめに来ている。", source: "2026.10.28 の気づき" },
+    { text: "思考は、原因を語る顔をした、<br>出力結果。", source: "2026.10.28 の気づき" },
+    { text: "「何かが間違っているから、この現状がある」のではない。<br>「何かが間違っている」という信念から、<br>間違って見える見え方が生まれている。", source: "2026.10.28 の気づき" },
+    { text: "信念が、<br>間違いを見つけ出す目になっていた。", source: "2026.10.28 の気づき" },
+    { text: "原理は狂っていない。<br>確信をそのまま、<br>忠実に形にしているだけ。", source: "2026.10.28 の気づき" },
+    { text: "原理は相手を選ばない。<br>この力に、穴はない。<br>それは、新しく置いたものにも<br>同じ忠実さで働くという約束。", source: "2026.10.28 の気づき" },
+    { text: "今の現実は、失望ではなく、<br>原理のパワーが限定なく<br>誰にでも降り注いでいることの証明。", source: "2026.10.28 の気づき" },
+    { text: "受け取らない椅子は、<br>誇らしい椅子だった。<br>信念の深さを支えていたのは、プライド。", source: "2026.10.28 の気づき" },
+    { text: "受け取らない水道管は存在しない。<br>受け取ることと渡すことは、<br>管の中では一つの動き。", source: "2026.10.28 の気づき" },
+    { text: "嬉しそうに受け取っていてほしい。<br>私が誰かに願うそのことを、<br>「自己」も私に願っている。", source: "2026.10.28 の気づき" },
+    { text: "チーズに穴はない。<br>他人の動きも、数字も、時間も、<br>受け取る私も、同じ流れの中に在る。", source: "2026.10.28 の気づき" },
+    { text: "「誰がどう聞いても困難」は、<br>頭の中に呼び集めた陪審員。<br>席が見えたら、もう舞台裏に回れている。", source: "2026.10.28 の気づき" },
+    { text: "物理の世界も、無形から独立してはいない。<br>見え方と現実は、<br>一本の流れの手前と奥。", source: "2026.10.28 の気づき" },
+    { text: "物理は変えられようがない、<br>という信念すらも、<br>明け渡せるものだった。", source: "2026.10.28 の気づき" },
+    { text: "証明を探したくなったら、<br>「あ、また成分表を読みたくなってる」と<br>笑って気づくだけでいい。", source: "2026.10.28 の気づき" },
+    { text: "私を無くすのではない。<br>「自己」は、そもそも私。", source: "2026.10.28 の気づき" },
+    { text: "受け取ることは、<br>身につける技術ではなく、<br>もともと在る「自己」の性質。", source: "2026.10.28 の気づき" },
+    { text: "心は、本当に大丈夫かを知らない。<br>知らなくていい。<br>分からなさごと、「自己」に預ける。", source: "2026.10.28 の気づき" },
+    { text: "ネガティブな知覚は、<br>いつも最後に恩寵になる。<br>それもまた、原理の忠実な働き。", source: "2026.10.28 の気づき" },
+
+    /* ── ホーキンズ博士「欲望のフィールド」より ── */
+    { text: "奇妙なことに、無意識は私たちが<br>自分自身に値すると思うものしか<br>持たせてくれません。", source: "ホーキンズ博士「欲望のフィールド」より" },
+    { text: "私たちが自らの小ささを手放し、<br>内なる無垢さを再評価し、<br>寛大さ、オープンさ、信頼、愛情、情念に対する<br>抵抗を手放すと、<br>無意識は自動的に人生の状況を整え始め、<br>豊かさが私たちの人生に流れ込むようになるのです。", source: "ホーキンズ博士「欲望のフィールド」より" },
+    { text: "奉仕は犠牲ではないのです。", source: "ホーキンズ博士「欲望のフィールド」より" },
+  ];
+
+  /* ── ひもとく ── */
+  let current = 0;
+  const countEl = document.getElementById("stepCount");
+  const titleEl = document.getElementById("stepTitle");
+  const bodyEl  = document.getElementById("stepBody");
+  const dotsEl  = document.getElementById("dots");
+  const prevBtn = document.getElementById("prevBtn");
+  const nextBtn = document.getElementById("nextBtn");
+  const restartBtn = document.getElementById("restartBtn");
+
+  steps.forEach(() => dotsEl.appendChild(document.createElement("span")));
+
+  function renderStep() {
+    const s = steps[current];
+    countEl.textContent = (current + 1) + " / " + steps.length;
+    titleEl.textContent = s.title;
+    bodyEl.innerHTML = s.body + (s.whisper ? '<span class="whisper">' + s.whisper + '</span>' : "");
+    [...dotsEl.children].forEach((d, i) => d.classList.toggle("on", i === current));
+    prevBtn.hidden = current === 0;
+    nextBtn.hidden = current === steps.length - 1;
+    restartBtn.hidden = current !== steps.length - 1;
+  }
+
+  function fadeTo(fn) {
+    const els = [countEl, titleEl, bodyEl];
+    els.forEach(e => e.classList.add("fade"));
+    setTimeout(() => { fn(); els.forEach(e => e.classList.remove("fade")); }, 450);
+  }
+
+  function go(d) {
+    const n = current + d;
+    if (n < 0 || n >= steps.length) return;
+    fadeTo(() => { current = n; renderStep(); });
+  }
+
+  function restart() {
+    fadeTo(() => { current = 0; renderStep(); });
+  }
+
+  renderStep();
+
+  /* ── 見つけた自己像 ── */
+  const findsEl = document.getElementById("finds");
+  finds.forEach(f => {
+    const d = document.createElement("details");
+    d.innerHTML =
+      '<summary><span class="find-date">' + f.date + '</span>' + f.belief + '</summary>' +
+      '<div class="find-body"><span class="arrow">↓ 明け渡した先に、もともと在るもの</span>' +
+      '<span class="origin">' + f.origin + '</span></div>';
+    findsEl.appendChild(d);
+  });
+
+  /* ── 今夜の一節 ── */
+  const quoteEl = document.getElementById("quote");
+  const sourceEl = document.getElementById("source");
+  let last = -1;
+
+  function pick() {
+    if (passages.length < 2) return 0;
+    let i;
+    do { i = Math.floor(Math.random() * passages.length); } while (i === last);
+    return i;
+  }
+
+  function render(i) {
+    quoteEl.innerHTML = passages[i].text;
+    sourceEl.textContent = "— " + passages[i].source;
+    last = i;
+  }
+
+  function showPassage() {
+    quoteEl.classList.add("fade");
+    sourceEl.classList.add("fade");
+    setTimeout(() => {
+      render(pick());
+      quoteEl.classList.remove("fade");
+      sourceEl.classList.remove("fade");
+    }, 600);
+  }
+
+  // 開くたびにランダムで一節
+  render(pick());
+
+  // ホーム画面のアプリは裏に残るので、戻ってきた時にも新しい一節に
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible") showPassage();
+  });
+</script>
+</body>
+</html>
