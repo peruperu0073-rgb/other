@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow, noarchive">
+
+<!-- ホーム画面から開いた時、アプリのように全画面で表示 -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<!-- アイコンの下に出る名前 -->
+<meta name="apple-mobile-web-app-title" content="ふつうの日">
+<meta name="theme-color" content="#F2F7F5">
+<!-- ホーム画面のアイコン(同じフォルダに置く。別のアイコンにしたい時はファイル名を変える) -->
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+
+<title>ふつうの日</title>
+
+<style>
+  :root {
+    --bg:        #F2F7F5;
+    --bg-glow:   #E2F0EC;
+    --card:      rgba(255, 255, 255, 0.78);
+    --ink:       #3C4A48;
+    --ink-soft:  #74827F;
+    --water:     #4F8E8A;
+    --water-soft:#B9D6D1;
+    --gold:      #C9A15A;
+    --line:      rgba(79, 142, 138, 0.24);
+    --mincho: "Hiragino Mincho ProN", "Yu Mincho", "YuMincho", "Noto Serif JP", serif;
+    --gothic: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { -webkit-text-size-adjust: 100%; }
+
+  body {
+    min-height: 100vh;
+    min-height: 100dvh;
+    background:
+      radial-gradient(120% 55% at 50% 0%, var(--bg-glow) 0%, transparent 70%),
+      var(--bg);
+    color: var(--ink);
+    font-family: var(--mincho);
+    line-height: 2;
+    letter-spacing: 0.06em;
+    -webkit-font-smoothing: antialiased;
+    padding:
+      calc(env(safe-area-inset-top) + 40px)
+      calc(env(safe-area-inset-right) + 24px)
+      calc(env(safe-area-inset-bottom) + 48px)
+      calc(env(safe-area-inset-left) + 24px);
+  }
+
+  main {
+    max-width: 520px;
+    margin: 0 auto;
+    animation: rise 1.4s ease both;
+  }
+
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: none; }
+  }
+
+  .label {
+    font-family: var(--gothic);
+    font-size: 11px;
+    letter-spacing: 0.32em;
+    color: var(--water);
+    text-align: center;
+    margin-bottom: 28px;
+  }
+
+  h1 {
+    font-weight: 500;
+    font-size: 22px;
+    letter-spacing: 0.18em;
+    text-align: center;
+    margin-bottom: 32px;
+  }
+
+  h2 {
+    font-weight: 500;
+    font-size: 18px;
+    letter-spacing: 0.16em;
+    text-align: center;
+    margin-bottom: 10px;
+  }
+
+  .lead {
+    font-size: 13.5px;
+    color: var(--ink-soft);
+    text-align: center;
+    line-height: 2;
+    margin-bottom: 26px;
+  }
+
+  /* ふつうの信条 */
+  .creed p {
+    font-size: 16px;
+    line-height: 2.15;
+    text-align: center;
+    margin-bottom: 0.9em;
+  }
+  .creed p:last-child { margin-bottom: 0; }
+
+  /* しずくの区切り */
+  .divider {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    margin: 44px 0;
+    color: var(--water);
+  }
+  .divider::before,
+  .divider::after {
+    content: "";
+    width: 56px;
+    height: 1px;
+    background: var(--line);
+  }
+  .divider svg { width: 12px; height: 14px; }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    padding: 30px 22px 24px;
+    box-shadow: 0 10px 40px -22px rgba(60, 110, 105, 0.35);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+  }
+
+  .fadeable { transition: opacity 0.6s ease; }
+  .fade { opacity: 0; }
+
+  /* 今日のふつう */
+  #scene {
+    font-size: 16px;
+    line-height: 2.1;
+    text-align: center;
+    min-height: 6.3em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  #reply {
+    font-size: 13.5px;
+    color: var(--water);
+    text-align: center;
+    min-height: 2em;
+    margin-top: 10px;
+  }
+
+  .buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 18px;
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    font-family: var(--gothic);
+    font-size: 12px;
+    letter-spacing: 0.2em;
+    color: var(--water);
+    background: transparent;
+    border: 1px solid var(--water-soft);
+    border-radius: 999px;
+    padding: 10px 22px;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: background 0.3s ease;
+  }
+  .btn:active { background: var(--bg-glow); }
+  .btn.filled {
+    background: var(--water);
+    color: #fff;
+    border-color: var(--water);
+  }
+  .btn.filled:active { background: #427976; }
+
+  .count {
+    font-family: var(--gothic);
+    font-size: 10.5px;
+    letter-spacing: 0.18em;
+    color: var(--ink-soft);
+    text-align: center;
+    margin-top: 16px;
+  }
+
+  /* 付箋をはがす(収支) */
+  details {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    margin-bottom: 10px;
+    overflow: hidden;
+  }
+  summary {
+    list-style: none;
+    cursor: pointer;
+    padding: 14px 40px 14px 18px;
+    font-size: 14.5px;
+    line-height: 1.9;
+    position: relative;
+    -webkit-tap-highlight-color: transparent;
+  }
+  summary::-webkit-details-marker { display: none; }
+  summary::after {
+    content: "＋";
+    position: absolute;
+    right: 18px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-family: var(--gothic);
+    font-size: 12px;
+    color: var(--water);
+  }
+  details[open] summary::after { content: "－"; }
+  .tag {
+    display: block;
+    font-family: var(--gothic);
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--ink-soft);
+  }
+  .audit {
+    padding: 0 18px 18px;
+    font-size: 13.5px;
+    line-height: 2;
+  }
+  .audit dt {
+    font-family: var(--gothic);
+    font-size: 10.5px;
+    letter-spacing: 0.24em;
+    color: var(--water);
+    margin-top: 10px;
+  }
+  .audit dt:first-child { margin-top: 0; }
+  .audit dd { margin: 0; }
+  .audit .ordinary {
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px dashed var(--line);
+    text-align: center;
+    color: var(--water);
+  }
+
+  .closing {
+    font-size: 14px;
+    line-height: 2.1;
+    text-align: center;
+    margin-top: 22px;
+  }
+
+  /* ふつうの一節 */
+  .passage { margin-top: 56px; }
+  .passage .label { margin-bottom: 20px; }
+  #quote {
+    font-size: 15.5px;
+    line-height: 2.1;
+    text-align: center;
+    min-height: 6.3em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  #source {
+    font-family: var(--gothic);
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    color: var(--ink-soft);
+    text-align: center;
+    margin-top: 18px;
+  }
+  .again { display: block; margin: 22px auto 0; }
+
+  nav {
+    margin-top: 44px;
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+  nav a {
+    font-family: var(--gothic);
+    font-size: 12px;
+    letter-spacing: 0.22em;
+    color: var(--water);
+    text-decoration: none;
+  }
+
+  footer {
+    margin-top: 28px;
+    text-align: center;
+    font-family: var(--gothic);
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    color: var(--water-soft);
+  }
+</style>
+</head>
+<body>
+<main>
+
+  <!-- ── ふつうの信条 ── -->
+  <section class="creed">
+    <p class="label">ORDINARY GRACE</p>
+    <h1>恩寵は、ふつうのこと</h1>
+    <p>蛇口をひねれば、水が出る。太陽が昇り、沈む。<br>そのたびに、奇跡だと驚いたりはしない。</p>
+    <p>ありがたいけれど、当然。</p>
+    <p>豊かさも、安心も、<br>"富を受け取る私"に原理が応えることも、<br>特別なことではなく、ふつうのこと。</p>
+    <p>原理はいつも、どちらの方向にも、<br>同じだけ忠実に働いている。</p>
+    <p>だから私は、<br>豊かさを当然のように受け取る存在で在ります。</p>
+  </section>
+
+  <div class="divider" aria-hidden="true">
+    <!-- しずく -->
+    <svg viewBox="0 0 20 24" fill="currentColor"><path d="M10 0 C10 0 2 10 2 15.5 A8 8 0 0 0 18 15.5 C18 10 10 0 10 0 Z"/></svg>
+  </div>
+
+  <!-- ── 今日のふつう ── -->
+  <section>
+    <h2>今日のふつう</h2>
+    <p class="lead">願いを、もう「いつものこと」として。<br>読んだら、当然のように受け取ります。</p>
+
+    <div class="card">
+      <p id="scene" class="fadeable"></p>
+      <p id="reply" class="fadeable"></p>
+      <div class="buttons">
+        <button class="btn filled" type="button" onclick="receive()">当然、受け取ります</button>
+        <button class="btn" type="button" onclick="nextScene()">つぎのふつう</button>
+      </div>
+      <p class="count" id="count"></p>
+    </div>
+  </section>
+
+  <div class="divider" aria-hidden="true">
+    <svg viewBox="0 0 20 24" fill="currentColor"><path d="M10 0 C10 0 2 10 2 15.5 A8 8 0 0 0 18 15.5 C18 10 10 0 10 0 Z"/></svg>
+  </div>
+
+  <!-- ── 奇跡の付箋をはがす ── -->
+  <section>
+    <h2>「限定」の付箋をはがす</h2>
+    <p class="lead">「でも、これは特別だから」が出てきたら、<br>美徳ではなく、収支で見てみる。</p>
+    <div id="audits"></div>
+    <p class="closing">どれも、確実に働く原理を、<br>わざわざ逆方向に使っている状態。<br>消耗する方向に向けるのは、割に合わない。<br>合理的な心が頷いて一歩脇に退いた時、<br>そこにはもう、当然の確信が在る。</p>
+  </section>
+
+  <!-- ── ふつうの一節 ── -->
+  <section class="card passage">
+    <p class="label">ORDINARY PASSAGE</p>
+    <p id="quote" class="fadeable"></p>
+    <p id="source" class="fadeable"></p>
+    <button class="btn again" type="button" onclick="showPassage()">もうひとつ</button>
+  </section>
+
+  <nav>
+    <a href="index.html">信条 ✦</a>
+    <a href="surrender.html">明け渡し ☽</a>
+  </nav>
+
+  <footer>〰</footer>
+
+</main>
+
+<script>
+  /* ──────────────────────────────────────────
+     ① 今日のふつう
+     願いを「いつものこと」として書いた一文。
+     新しい願いが生まれたら、ここに足していけばOK。
+     書き方:"本文", ※ 改行したい所には <br>
+  ────────────────────────────────────────── */
+  const scenes = [
+    "今日も、嬉しく楽しい仕事が、<br>いつものように自然な流れで舞い込んでくる。",
+    "利益は、今月もいつも通り、<br>着実にたまっている。",
+    "使命に必要な資金は、<br>今日もどこからともなく、ふつうに現れる。",
+    "決算に間に合う入金があるのも、<br>いつものこと。",
+    "受け取る私に、原理がちゃんと応える。<br>それは、ふつうのこと。",
+    "スタッフが今日も楽しく、<br>誇りをもって筆を走らせている。<br>いつもの、うちの風景。",
+    "「お願いしてよかった」と、<br>弾んだ声の連絡が届く。<br>今日もまた。",
+    "忙しいのに、喜びに使う時間はたっぷりある。<br>それが、ふつう。",
+    "個人的には使いきれないほどの所得を、<br>いつものように税金で世の中へ巡らせる。",
+    "家族においしいものや旅行を贈るのは、<br>わが家ではふつうのこと。",
+    "週末は温泉で、湯気に包まれて、<br>いつものように、ただほっこりしている。",
+    "東京にも帰る場所があるのは、<br>もう当たり前の暮らし。",
+    "次に描く目標が、<br>今日もとめどなく湧いてくる。",
+    "生まれた富が、場所や作品や人々へ、<br>喜びとして巡っていく。<br>いつもの流れ。",
+  "自然豊かなアトリエが、<br>もうひとつの拠点としてあります。",
+  ];
+
+  /* 「当然、受け取ります」を押した時の返事 */
+  const replies = [
+    "ありがとうございます。いつものことです。",
+    "当然のように、ありがたい。",
+    "今日も、ふつうに流れています。",
+    "受け取りました。これがふつう。",
+    "これが信念になります。",
+  ];
+
+  /* ──────────────────────────────────────────
+     ② 奇跡の付箋(収支)
+     書き方:{ belief: "付箋", cost: "コスト", ret: "リターン", ordinary: "ふつうの見方" },
+  ────────────────────────────────────────── */
+  const audits = [
+    {
+      belief: "当然だと思うのは傲慢で、感謝を失う",
+      cost: "恩寵が来るたびに「これは奇跡だから」と距離を置き直す手間と、当然のように受け取っている人との間に、ずっと生まれ続ける差。",
+      ret: "謙虚な私でいられるという感覚だけ。しかも感謝は持っている人の言葉なので、距離を置くほど感謝もしにくくなる、目的に対して逆効果の仕組み。",
+      ordinary: "当然と思いながら、ありがたい。<br>その二つは、ちゃんと両立する。"
+    },
+    {
+      belief: "当てにしたら、来なかったときに耐えられない",
+      cost: "来るかもしれないものを最初から来ないものとして扱うことで、原理がその「来ない」を忠実に実現し続けること。失う痛みを避けるために、失った状態に先に住み続けることになる。",
+      ret: "保険料を払い続けて、毎月事故に遭っているような契約(笑)。",
+      ordinary: "当てにしていい。<br>原理は、当てにした方へ忠実に働く。"
+    },
+    {
+      belief: "当然に流れてくるなら、努力や苦労の意味がなくなる",
+      cost: "お金という恩寵を得るたびに、わざわざ苦労という付け合わせを追加し続けること。時間も体力もスタッフさんの余力も、成果と関係のない部分で消耗する。",
+      ret: "「頑張った私」という誇りだけ。それは試算表のどこにも計上されない。",
+      ordinary: "楽しくてたまらないことを、楽しくてやる。<br>それだけで、ふつうに巡る。"
+    },
+    {
+      belief: "“特別に欠けている私”でいたい",
+      cost: "世界中を巡っている流れの中で、自分の場所だけを穴にしておくための、終わりのない維持管理。穴は放っておけば流れで満たされるので、「でもカルマが」「でも私は例外だから」と、毎日穴を掘り直さなければならない。",
+      ret: "特別な物語の主人公でいられることだけ。",
+      ordinary: "私はふつうの水道管の一本。<br>それは小さくなることではなく、<br>無限の流れそのものとして在ること。"
+    },
+  ];
+
+  /* ──────────────────────────────────────────
+     ③ ふつうの一節
+     書き方:{ text: "本文", source: "出典" },
+  ────────────────────────────────────────── */
+  const passages = [
+    { text: "蛇口をひねれば水が出ることに、<br>毎回驚いたりはしない。<br>ありがたいけれど、当然。", source: "2026.10.29 の気づき" },
+    { text: "確信は「特別なもの」としてではなく、<br>「当然のこと」という質感で。", source: "2026.10.29 の気づき" },
+    { text: "ふつうのことになったらと思うだけで湧く<br>ワクワクとありがたさは、<br>もう受け取っている人の手触り。", source: "2026.10.29 の気づき" },
+    { text: "恩寵を当然のように受け取る信念の話は、<br>美徳の話ではなく、<br>エネルギーの収支の話。", source: "2026.10.29 の気づき" },
+    { text: "原理は忠実に、どちらの方向にも、<br>同じだけ働く。", source: "2026.10.29 の気づき" },
+    { text: "安心は、お金の向こう側にある景品ではなく、<br>直接そこに在ることができるもの。", source: "2026.10.29 の気づき" },
+    { text: "案件が今見えていないことは、<br>お金が来ない理由ではない。<br>心が、通り道をまだ知らないだけ。", source: "2026.10.29 の気づき" },
+    { text: "安心は今ここに在る。<br>お金は、その安心の中を、<br>喜びとして自由に流れていく。", source: "2026.10.29 の気づき" },
+    { text: "時間も物量も、<br>結果であり、原因ではない。", source: "2026.10.29 の気づき" },
+    { text: "「叶った」より、<br>「選んだから、当然」。", source: "2026.8.9 の気づき" },
+    { text: "「なんか余った」くらいの軽さで、<br>そこに在ると知っている。", source: "2026.10.25 の気づき" },
+
+    /* ── ホーキンズ博士より ── */
+    { text: "突然豊かさに恵まれるケースがよくあります。<br>このような経験は珍しくなく、<br>ごく一般的なものです。", source: "ホーキンズ博士「欲望のフィールド」より" },
+    { text: "手放しのテクニックを実践する人々の間では、<br>突然豊かさに恵まれるケースがよくあります。", source: "ホーキンズ博士「富について」より" },
+    { text: "プロジェクトを完了させるために資金が必要なとき、<br>それはどこからともなく<br>魔法のように現れるように感じられます。", source: "ホーキンズ博士「富について」より" },
+    { text: "内面的な安心感が生まれ、<br>必要なときには必要な分だけの豊かさが<br>常に得られるという確信を持つようになります。", source: "ホーキンズ博士「富について」より" },
+    { text: "お金がもたらすと考えた目標が<br>直接的に達成可能であることにも<br>気づくでしょう。", source: "ホーキンズ博士「富について」より" },
+    { text: "お金は不安の源ではなく、<br>むしろ喜びの源となるのです。", source: "ホーキンズ博士「富について」より" },
+
+    /* ── マーフィー博士より ── */
+    { text: "人はけっして貧困生活を送るというようにはなっていません。", source: "マーフィー博士の教えより" },
+    { text: "あなたは自分の潜在意識の富を楽しめるといいのに、<br>どうしてやっとやっていけるだけのことで<br>満足しているのですか？", source: "マーフィー博士の教えより" },
+  ];
+
+  /* ── 今日のふつう ── */
+  const sceneEl = document.getElementById("scene");
+  const replyEl = document.getElementById("reply");
+  const countEl = document.getElementById("count");
+  let sceneIdx = -1;
+
+  function randomIndex(len, avoid) {
+    if (len < 2) return 0;
+    let i;
+    do { i = Math.floor(Math.random() * len); } while (i === avoid);
+    return i;
+  }
+
+  function showScene(i) {
+    sceneEl.innerHTML = scenes[i];
+    sceneIdx = i;
+  }
+
+  function nextScene() {
+    sceneEl.classList.add("fade");
+    replyEl.classList.add("fade");
+    setTimeout(() => {
+      showScene(randomIndex(scenes.length, sceneIdx));
+      replyEl.textContent = "";
+      sceneEl.classList.remove("fade");
+      replyEl.classList.remove("fade");
+    }, 600);
+  }
+
+  // 受け取った回数(この端末の中だけに記録)
+  function readCount() {
+    try { return parseInt(localStorage.getItem("ordinary-received") || "0", 10) || 0; }
+    catch (e) { return 0; }
+  }
+  function writeCount(n) {
+    try { localStorage.setItem("ordinary-received", String(n)); } catch (e) {}
+  }
+  let received = readCount();
+  function renderCount() {
+    countEl.textContent = received > 0 ? "これまでに受け取ったふつう ― " + received : "";
+  }
+
+  function receive() {
+    replyEl.classList.add("fade");
+    setTimeout(() => {
+      replyEl.textContent = replies[Math.floor(Math.random() * replies.length)];
+      replyEl.classList.remove("fade");
+    }, 300);
+    received += 1;
+    writeCount(received);
+    renderCount();
+  }
+
+  showScene(randomIndex(scenes.length, -1));
+  renderCount();
+
+  /* ── 付箋の収支 ── */
+  const auditsEl = document.getElementById("audits");
+  audits.forEach(a => {
+    const d = document.createElement("details");
+    d.innerHTML =
+      '<summary><span class="tag">付箋</span>「' + a.belief + '」</summary>' +
+      '<dl class="audit">' +
+        '<dt>コスト</dt><dd>' + a.cost + '</dd>' +
+        '<dt>リターン</dt><dd>' + a.ret + '</dd>' +
+      '</dl>' +
+      '<div class="audit"><p class="ordinary">' + a.ordinary + '</p></div>';
+    auditsEl.appendChild(d);
+  });
+
+  /* ── ふつうの一節 ── */
+  const quoteEl = document.getElementById("quote");
+  const sourceEl = document.getElementById("source");
+  let last = -1;
+
+  function render(i) {
+    quoteEl.innerHTML = passages[i].text;
+    sourceEl.textContent = "— " + passages[i].source;
+    last = i;
+  }
+
+  function showPassage() {
+    quoteEl.classList.add("fade");
+    sourceEl.classList.add("fade");
+    setTimeout(() => {
+      render(randomIndex(passages.length, last));
+      quoteEl.classList.remove("fade");
+      sourceEl.classList.remove("fade");
+    }, 600);
+  }
+
+  render(randomIndex(passages.length, -1));
+
+  // ホーム画面のアプリは裏に残るので、戻ってきた時にも新しい一文に
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible") { nextScene(); showPassage(); }
+  });
+</script>
+</body>
+</html>
