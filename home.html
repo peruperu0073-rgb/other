@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow, noarchive">
+
+<!-- ホーム画面から開いた時、アプリのように全画面で表示 -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<!-- アイコンの下に出る名前 -->
+<meta name="apple-mobile-web-app-title" content="在る">
+<meta name="theme-color" content="#F8F4EC">
+<!-- ホーム画面のアイコン(同じフォルダに置く。別のアイコンにしたい時はファイル名を変える) -->
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+
+<title>在る</title>
+
+<style>
+  :root {
+    --bg:        #F8F4EC;
+    --bg-glow:   #FFF1D9;
+    --card:      rgba(255, 255, 255, 0.74);
+    --ink:       #4A4038;
+    --ink-soft:  #8A7D70;
+    --gold:      #C9A15A;
+    --gold-soft: #E8D3A8;
+    --line:      rgba(201, 161, 90, 0.28);
+    --mincho: "Hiragino Mincho ProN", "Yu Mincho", "YuMincho", "Noto Serif JP", serif;
+    --gothic: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { -webkit-text-size-adjust: 100%; }
+
+  body {
+    min-height: 100vh;
+    min-height: 100dvh;
+    background:
+      radial-gradient(120% 60% at 50% 0%, var(--bg-glow) 0%, transparent 70%),
+      var(--bg);
+    color: var(--ink);
+    font-family: var(--mincho);
+    line-height: 2;
+    letter-spacing: 0.06em;
+    -webkit-font-smoothing: antialiased;
+    padding:
+      calc(env(safe-area-inset-top) + 36px)
+      calc(env(safe-area-inset-right) + 22px)
+      calc(env(safe-area-inset-bottom) + 48px)
+      calc(env(safe-area-inset-left) + 22px);
+  }
+
+  main {
+    max-width: 520px;
+    margin: 0 auto;
+    animation: rise 1.4s ease both;
+  }
+
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: none; }
+  }
+
+  /* ── 湯けむり ── */
+  .steam {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    height: 46px;
+    margin-bottom: 6px;
+    color: var(--gold-soft);
+  }
+  .steam svg {
+    width: 14px;
+    height: 46px;
+    animation: steam 5.5s ease-in-out infinite;
+    opacity: 0;
+  }
+  .steam svg:nth-child(2) { animation-delay: 1.6s; }
+  .steam svg:nth-child(3) { animation-delay: 3.2s; }
+  @keyframes steam {
+    0%   { opacity: 0;   transform: translateY(10px); }
+    35%  { opacity: 0.9; }
+    100% { opacity: 0;   transform: translateY(-10px); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .steam svg { animation: none; opacity: 0.7; }
+    main { animation: none; }
+  }
+
+  .date {
+    font-family: var(--gothic);
+    font-size: 11px;
+    letter-spacing: 0.3em;
+    color: var(--ink-soft);
+    text-align: center;
+    margin-bottom: 18px;
+  }
+
+  .label {
+    font-family: var(--gothic);
+    font-size: 11px;
+    letter-spacing: 0.32em;
+    color: var(--gold);
+    text-align: center;
+    margin-bottom: 18px;
+  }
+
+  /* ── 今日も私は ── */
+  .iam {
+    text-align: center;
+  }
+  .iam .pre {
+    font-size: 14px;
+    color: var(--ink-soft);
+    letter-spacing: 0.2em;
+  }
+  .iam h1 {
+    font-weight: 500;
+    font-size: 26px;
+    letter-spacing: 0.16em;
+    line-height: 1.8;
+    margin: 6px 0 26px;
+  }
+  .iam .qualities p {
+    font-size: 15.5px;
+    line-height: 2.1;
+    margin-bottom: 0.7em;
+  }
+  .iam .qualities p:last-child { margin-bottom: 0; }
+
+  .today {
+    margin-top: 30px;
+    padding: 18px 18px 16px;
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    text-align: center;
+  }
+  .today .t-label {
+    font-family: var(--gothic);
+    font-size: 10.5px;
+    letter-spacing: 0.28em;
+    color: var(--gold);
+  }
+  .today .t-text {
+    font-size: 17px;
+    letter-spacing: 0.1em;
+    margin-top: 4px;
+  }
+
+  .reminder {
+    font-size: 13px;
+    color: var(--ink-soft);
+    text-align: center;
+    line-height: 2;
+    margin-top: 22px;
+  }
+
+  /* ── のれん ── */
+  .noren {
+    margin: 48px 0 22px;
+    text-align: center;
+  }
+  .noren .curtain {
+    display: inline-flex;
+    gap: 4px;
+  }
+  .noren .curtain span {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 56px;
+    background: #6B7FA8;
+    color: #fff;
+    font-size: 20px;
+    border-radius: 0 0 6px 6px;
+    box-shadow: 0 8px 20px -12px rgba(60, 70, 110, 0.6);
+  }
+  .noren .curtain span:nth-child(2) { background: #A86B6B; }
+  .noren p {
+    font-size: 13.5px;
+    color: var(--ink-soft);
+    margin-top: 16px;
+    line-height: 2;
+  }
+
+  /* ── 湯の扉 ── */
+  .door {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    border-radius: 20px;
+    padding: 20px 20px 18px;
+    margin-bottom: 14px;
+    border: 1px solid var(--d-line);
+    background:
+      radial-gradient(100% 80% at 100% 0%, var(--d-glow) 0%, transparent 70%),
+      var(--d-bg);
+    box-shadow: 0 10px 34px -24px rgba(60, 50, 40, 0.5);
+    position: relative;
+    -webkit-tap-highlight-color: transparent;
+    transition: transform 0.25s ease;
+  }
+  .door:active { transform: scale(0.985); }
+
+  .door .bath {
+    font-family: var(--gothic);
+    font-size: 10.5px;
+    letter-spacing: 0.26em;
+    color: var(--d-accent);
+  }
+  .door .name {
+    font-size: 19px;
+    letter-spacing: 0.16em;
+    color: var(--d-ink);
+    margin: 2px 0 6px;
+  }
+  .door .name .mark {
+    color: var(--d-accent);
+    font-size: 14px;
+    margin-left: 6px;
+  }
+  .door .what {
+    font-size: 13.5px;
+    line-height: 1.95;
+    color: var(--d-ink-soft);
+  }
+  .door .done {
+    position: absolute;
+    right: 18px;
+    top: 18px;
+    font-family: var(--gothic);
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    color: var(--d-accent);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+  }
+  .door.visited .done { opacity: 1; }
+
+  /* 各湯の色(それぞれのページの色に合わせて) */
+  .d-principle {
+    --d-bg: #F5F3EC; --d-glow: #E4E6F2; --d-line: rgba(77,91,142,0.25);
+    --d-ink: #34373F; --d-ink-soft: #6E7180; --d-accent: #4D5B8E;
+  }
+  .d-creed {
+    --d-bg: #FBF7F0; --d-glow: #FFEFD2; --d-line: rgba(201,161,90,0.32);
+    --d-ink: #4A4038; --d-ink-soft: #85786B; --d-accent: #B88E45;
+  }
+  .d-ordinary {
+    --d-bg: #F2F7F5; --d-glow: #DCEFEA; --d-line: rgba(79,142,138,0.28);
+    --d-ink: #3C4A48; --d-ink-soft: #6C7B78; --d-accent: #4F8E8A;
+  }
+  .d-surrender {
+    --d-bg: #1D2133; --d-glow: #343A60; --d-line: rgba(217,181,110,0.3);
+    --d-ink: #EEE7D9; --d-ink-soft: #B9B3C6; --d-accent: #D9B56E;
+  }
+
+  .closing {
+    font-size: 14px;
+    line-height: 2.1;
+    text-align: center;
+    margin-top: 30px;
+  }
+
+  footer {
+    margin-top: 30px;
+    text-align: center;
+    font-family: var(--gothic);
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    color: var(--gold-soft);
+  }
+</style>
+</head>
+<body>
+<main>
+
+
+  <!-- ── 今日も私は ── -->
+  <section class="iam">
+    <p class="label">TODAY, I AM</p>
+    <p class="pre">今日も、私は</p>
+    <h3>富を受けとり、巡らせる人。</h3>
+<h4>願いを在らしめる力は、もともと私の内に在る。</h4>
+
+ <!-- 湯けむり -->
+  <div class="steam" aria-hidden="true">
+    <svg viewBox="0 0 14 46" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M7 44 C2 36 12 30 7 22 C2 14 12 8 7 2"/></svg>
+    <svg viewBox="0 0 14 46" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M7 44 C2 36 12 30 7 22 C2 14 12 8 7 2"/></svg>
+    <svg viewBox="0 0 14 46" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M7 44 C2 36 12 30 7 22 C2 14 12 8 7 2"/></svg>
+  </div>
+
+    <div class="qualities">
+      <p>富は、限りなく湧き、<br>穴なく巡っている。</p>
+      <p>受け取るほどに満ち、<br>巡らせるほどにあふれる。</p>
+      <p>恩寵は、特別な誰かのものではなく、ふつうのこと。</p>
+      <p>原理は、すでに手の中にある魔法のランプ。</p>
+    </div>
+
+    <div class="today">
+      <p class="t-label">今日の在り方</p>
+      <p class="t-text" id="today"></p>
+    </div>
+
+    <p class="reminder">今日知覚されるものは、出来事そのものではなく、<br>抱えている自己像が映し出した反映。<br>だから今日も、何を「在る」とするかを選ぶだけ。</p>
+  </section>
+
+    <!-- ── 湯の扉 ── -->
+  <nav aria-label="四つの湯">
+    <a class="door d-principle" href="principle.html" data-key="principle">
+      <span class="done">♨ 浸かりました</span>
+      <p class="bath">源泉 ― THE PRINCIPLE</p>
+      <p class="name">原理<span class="mark">◯</span></p>
+      <p class="what">すべての湯が湧き出るところ。<br>ランプはもう手の中にあると、思い出す。</p>
+    </a>
+
+    <a class="door d-creed" href="index.html" data-key="creed">
+      <span class="done">♨ 浸かりました</span>
+      <p class="bath">朝湯 ― MY CREED</p>
+      <p class="name">信条<span class="mark">✦</span></p>
+      <p class="what">使命と、実現の景色に浸かる。<br>喜びの星に、焦点を合わせる。</p>
+    </a>
+
+    <a class="door d-ordinary" href="ordinary.html" data-key="ordinary">
+      <span class="done">♨ 浸かりました</span>
+      <p class="bath">かけ流し ― ORDINARY GRACE</p>
+      <p class="name">ふつうの恩寵<span class="mark">〰</span></p>
+      <p class="what">願いを、いつものこととして受け取る。<br>ありがたいけれど、当然。</p>
+    </a>
+
+    <a class="door d-surrender" href="surrender.html" data-key="surrender">
+      <span class="done">♨ 浸かりました</span>
+      <p class="bath">月見の露天 ― SURRENDER</p>
+      <p class="name">明け渡し<span class="mark">☽</span></p>
+      <p class="what">現実を通して見えた自己像を、<br>抵抗ごと「自己」へ預ける。</p>
+    </a>
+  </nav>
+
+  <p class="closing">どの湯から入っても、同じ源泉。<br>肩まで一気に浸かっても、<br>足湯から始めてもいい。</p>
+
+  <footer>♨</footer>
+
+</main>
+
+<script>
+  /* ──────────────────────────────────────────
+     今日の在り方
+     日付ごとに一つ選ばれ、その日のあいだは同じものが出ます。
+     書き方:"本文", ※ 改行したい所には <br>
+  ────────────────────────────────────────── */
+  const beings = [
+    "私は、受け取る水道管。",
+    "私は、何も間違っていない。",
+    "私は、当然のように受け取る人。",
+    "私は、喜びの星に焦点を合わせる描き手。",
+    "私は、「自己」の恩寵の通り道。",
+    "私は、満ちている。",
+    "私は、愛を通す管。",
+    "私は、湯船に浸かっている。",
+    "私は、共に流れを運ぶ一人。",
+    "私は、美を味わう人。",
+  ];
+
+  /* ── 日付 ── */
+  const now = new Date();
+  const week = ["日", "月", "火", "水", "木", "金", "土"];
+  document.getElementById("date").textContent =
+    now.getFullYear() + "." + (now.getMonth() + 1) + "." + now.getDate() + "（" + week[now.getDay()] + "）";
+
+  /* ── 今日の在り方(日付で決まる) ── */
+  const dayNumber = Math.floor(new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime() / 86400000);
+  document.getElementById("today").innerHTML = beings[dayNumber % beings.length];
+
+  /* ── 今日浸かった湯(この端末の中だけに、その日のあいだ記録) ── */
+  const todayKey = "bath-" + now.getFullYear() + "-" + (now.getMonth() + 1) + "-" + now.getDate();
+
+  function readVisited() {
+    try { return JSON.parse(localStorage.getItem(todayKey) || "[]"); }
+    catch (e) { return []; }
+  }
+  function writeVisited(list) {
+    try { localStorage.setItem(todayKey, JSON.stringify(list)); } catch (e) {}
+  }
+
+  function renderVisited() {
+    const visited = readVisited();
+    document.querySelectorAll(".door").forEach(d => {
+      d.classList.toggle("visited", visited.includes(d.dataset.key));
+    });
+  }
+
+  document.querySelectorAll(".door").forEach(d => {
+    d.addEventListener("click", () => {
+      const visited = readVisited();
+      if (!visited.includes(d.dataset.key)) {
+        visited.push(d.dataset.key);
+        writeVisited(visited);
+      }
+    });
+  });
+
+  renderVisited();
+
+  // 各ページから戻ってきた時に印を更新
+  window.addEventListener("pageshow", renderVisited);
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible") renderVisited();
+  });
+</script>
+</body>
+</html>
