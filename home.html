@@ -159,6 +159,55 @@
     margin-top: 22px;
   }
 
+  /* ── 書き換えの一文 ── */
+  .rewrite {
+    margin: 0 0 30px;
+    text-align: left;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    padding: 24px 22px 20px;
+    box-shadow: 0 10px 40px -22px rgba(150, 110, 50, 0.35);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  .rewrite .label { margin-bottom: 14px; }
+  #belief {
+    font-size: 15.5px;
+    line-height: 2.1;
+    text-align: center;
+    min-height: 8.4em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.7s ease;
+  }
+  #belief.fade { opacity: 0; }
+  .rewrite .bar {
+    height: 1px;
+    background: var(--line);
+    margin-top: 16px;
+    overflow: hidden;
+  }
+  .rewrite .bar span {
+    display: block;
+    height: 100%;
+    width: 0;
+    background: var(--gold);
+  }
+  .rewrite .tap {
+    font-family: var(--gothic);
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    color: var(--ink-soft);
+    text-align: center;
+    margin-top: 10px;
+  }
+
   /* ── のれん ── */
   .noren {
     margin: 48px 0 22px;
@@ -189,6 +238,7 @@
   }
 
   /* ── 湯の扉 ── */
+  nav { margin-top: 40px; }
   .door {
     display: block;
     text-decoration: none;
@@ -284,6 +334,15 @@
   <!-- ── 今日も私は ── -->
   <section class="iam">
     <p class="label">TODAY, I AM</p>
+
+    <!-- ── 書き換えの一文(ランダムで流れる・タップでも次へ) ── -->
+    <section class="rewrite" id="rewrite" role="button" tabindex="0" aria-label="次の一文へ">
+      <p class="label">REWRITING</p>
+      <p id="belief"></p>
+      <div class="bar" aria-hidden="true"><span id="beliefBar"></span></div>
+      <p class="tap">タップで次の一文へ</p>
+    </section>
+
     <p class="pre">今日も、私は</p>
     <h3>富を受けとり、巡らせる人。</h3>
 <h4>願いを在らしめる力は、もともと私の内に在る。</h4>
@@ -309,6 +368,7 @@
 
     <p class="reminder">今日知覚されるものは、出来事そのものではなく、<br>抱えている自己像が映し出した反映。<br>だから今日も、何を「在る」とするかを選ぶだけ。</p>
   </section>
+
 
     <!-- ── 湯の扉 ── -->
   <nav aria-label="四つの湯">
@@ -366,11 +426,80 @@
     "私は、美を味わう人。",
   ];
 
-  /* ── 日付 ── */
+  /* ──────────────────────────────────────────
+     書き換えの一文
+     ランダムで自動的に流れ、タップでも次へ送れます。
+     新しい一文ができたら、ここに足していけばOK。
+     書き方:"本文", ※ 改行したい所には <br>
+  ────────────────────────────────────────── */
+  const rewrites = [
+    "豊かな人の「当然」を、私はもう知っている。<br>すでにカフェでコーヒーを頼む時の、<br>あの軽やかさで、<br>3万のディナーを楽しんでいる。",
+    "「当然」の体感の中身は、なんでもアリ。<br>今日も、中身を育てよう。",
+    "境目を引いているのは、<br>収支残高ではなく、信念の線。<br>線はいつでも引き直せる。",
+    "有形の世界のマスターとは、<br>形の前で、ただ当然として在れること。<br>私は、形の世界で遊べる人。",
+  ];
+
+  /* 次の一文へ自動で送られるまでの秒数 */
+  const REWRITE_SECONDS = 12;
+
+  /* ── 日付(日付の欄がある時だけ表示) ── */
   const now = new Date();
   const week = ["日", "月", "火", "水", "木", "金", "土"];
-  document.getElementById("date").textContent =
-    now.getFullYear() + "." + (now.getMonth() + 1) + "." + now.getDate() + "（" + week[now.getDay()] + "）";
+  const dateEl = document.getElementById("date");
+  if (dateEl) {
+    dateEl.textContent =
+      now.getFullYear() + "." + (now.getMonth() + 1) + "." + now.getDate() + "（" + week[now.getDay()] + "）";
+  }
+
+  /* ── 書き換えの一文 ── */
+  const beliefEl = document.getElementById("belief");
+  const barEl = document.getElementById("beliefBar");
+  const rewriteEl = document.getElementById("rewrite");
+  let beliefIdx = -1;
+  let beliefTimer = null;
+
+  function pickBelief() {
+    if (rewrites.length < 2) return 0;
+    let i;
+    do { i = Math.floor(Math.random() * rewrites.length); } while (i === beliefIdx);
+    return i;
+  }
+
+  function startBar() {
+    barEl.style.transition = "none";
+    barEl.style.width = "0";
+    void barEl.offsetWidth; // アニメーションを最初からやり直す
+    barEl.style.transition = "width " + REWRITE_SECONDS + "s linear";
+    barEl.style.width = "100%";
+  }
+
+  function schedule() {
+    clearTimeout(beliefTimer);
+    startBar();
+    beliefTimer = setTimeout(nextBelief, REWRITE_SECONDS * 1000);
+  }
+
+  function showBelief(i) {
+    beliefEl.innerHTML = rewrites[i];
+    beliefIdx = i;
+  }
+
+  function nextBelief() {
+    beliefEl.classList.add("fade");
+    setTimeout(() => {
+      showBelief(pickBelief());
+      beliefEl.classList.remove("fade");
+    }, 700);
+    schedule();
+  }
+
+  rewriteEl.addEventListener("click", nextBelief);
+  rewriteEl.addEventListener("keydown", e => {
+    if (e.key === "Enter" || e.key === " ") { e.preventDefault(); nextBelief(); }
+  });
+
+  showBelief(pickBelief());
+  schedule();
 
   /* ── 今日の在り方(日付で決まる) ── */
   const dayNumber = Math.floor(new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime() / 86400000);
@@ -409,7 +538,12 @@
   // 各ページから戻ってきた時に印を更新
   window.addEventListener("pageshow", renderVisited);
   document.addEventListener("visibilitychange", () => {
-    if (document.visibilityState === "visible") renderVisited();
+    if (document.visibilityState === "visible") {
+      renderVisited();
+      nextBelief();   // 戻ってきた時は新しい一文から
+    } else {
+      clearTimeout(beliefTimer);   // 見ていない間は止めておく
+    }
   });
 </script>
 </body>
