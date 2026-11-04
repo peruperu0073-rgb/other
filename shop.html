@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow, noarchive">
+
+<!-- ホーム画面から開いた時、アプリのように全画面で表示 -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<!-- アイコンの下に出る名前 -->
+<meta name="apple-mobile-web-app-title" content="恩寵の小売店">
+<meta name="theme-color" content="#F8F2EC">
+<!-- ホーム画面のアイコン(同じフォルダに置く。別のアイコンにしたい時はファイル名を変える) -->
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+
+<title>恩寵の小売店</title>
+
+<style>
+  :root {
+    --bg:        #F8F2EC;
+    --bg-glow:   #F5E3D6;
+    --card:      rgba(255, 255, 255, 0.8);
+    --ink:       #403936;
+    --ink-soft:  #857973;
+    --rose:      #B06F62;
+    --rose-soft: #E9C9BF;
+    --gold:      #C9A15A;
+    --mark:      rgba(226, 178, 120, 0.42);
+    --line:      rgba(176, 111, 98, 0.22);
+    --mincho: "Hiragino Mincho ProN", "Yu Mincho", "YuMincho", "Noto Serif JP", serif;
+    --gothic: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+
+  body {
+    min-height: 100vh;
+    min-height: 100dvh;
+    background:
+      radial-gradient(120% 40% at 50% 0%, var(--bg-glow) 0%, transparent 70%),
+      var(--bg);
+    color: var(--ink);
+    font-family: var(--mincho);
+    line-height: 2;
+    letter-spacing: 0.05em;
+    -webkit-font-smoothing: antialiased;
+    padding:
+      calc(env(safe-area-inset-top) + 48px)
+      calc(env(safe-area-inset-right) + 24px)
+      calc(env(safe-area-inset-bottom) + 56px)
+      calc(env(safe-area-inset-left) + 24px);
+  }
+
+  main {
+    max-width: 560px;
+    margin: 0 auto;
+    animation: rise 1.4s ease both;
+  }
+
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: none; }
+  }
+
+  /* ── 表紙 ── */
+  .label {
+    font-family: var(--gothic);
+    font-size: 11px;
+    letter-spacing: 0.32em;
+    color: var(--rose);
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+  .cover { text-align: center; }
+  .cover h1 {
+    font-weight: 500;
+    font-size: 26px;
+    letter-spacing: 0.2em;
+    margin-bottom: 10px;
+  }
+  .cover .sub {
+    font-size: 14px;
+    letter-spacing: 0.14em;
+    color: var(--ink-soft);
+  }
+  .cover .for {
+    display: inline-block;
+    margin-top: 18px;
+    font-family: var(--gothic);
+    font-size: 11px;
+    letter-spacing: 0.24em;
+    color: var(--rose);
+    border: 1px solid var(--rose-soft);
+    border-radius: 999px;
+    padding: 4px 16px;
+  }
+
+  /* ひさし(お店の屋根) */
+  .awning {
+    display: block;
+    width: 120px;
+    height: auto;
+    margin: 0 auto 26px;
+  }
+
+  /* ── もくじ ── */
+  .toc {
+    margin-top: 40px;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    padding: 24px 22px 20px;
+    box-shadow: 0 10px 40px -24px rgba(150, 90, 75, 0.35);
+  }
+  .toc .label { margin-bottom: 12px; }
+  .toc ol {
+    list-style: none;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px 16px;
+  }
+  @media (max-width: 420px) { .toc ol { grid-template-columns: 1fr; } }
+  .toc a {
+    display: block;
+    font-size: 13px;
+    line-height: 1.9;
+    padding: 3px 0;
+    color: var(--ink);
+    text-decoration: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .toc a::before {
+    content: "·";
+    color: var(--gold);
+    margin-right: 8px;
+  }
+
+  /* ── 区切り ── */
+  .divider {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    margin: 48px 0;
+    color: var(--gold);
+  }
+  .divider::before,
+  .divider::after {
+    content: "";
+    width: 56px;
+    height: 1px;
+    background: var(--line);
+  }
+  .divider svg { width: 12px; height: 12px; }
+
+  /* ── 各章 ── */
+  section { scroll-margin-top: 24px; }
+
+  h2 {
+    font-weight: 500;
+    font-size: 19px;
+    letter-spacing: 0.14em;
+    text-align: center;
+    line-height: 1.7;
+    margin-bottom: 22px;
+    text-wrap: balance;
+  }
+  h2 small {
+    display: block;
+    font-family: var(--gothic);
+    font-size: 10.5px;
+    letter-spacing: 0.28em;
+    color: var(--rose);
+    margin-bottom: 6px;
+  }
+
+  .prose p {
+    font-size: 15px;
+    line-height: 2.1;
+    margin-bottom: 1.1em;
+  }
+  .prose p:last-child { margin-bottom: 0; }
+
+  h3 {
+    font-weight: 500;
+    font-size: 15.5px;
+    letter-spacing: 0.1em;
+    margin: 26px 0 8px;
+    color: var(--rose);
+  }
+
+  /* 太字 → 下線が引かれる */
+  strong {
+    font-weight: 600;
+    background-image: linear-gradient(transparent 64%, var(--mark) 64%, var(--mark) 92%, transparent 92%);
+    background-repeat: no-repeat;
+    background-size: 0% 100%;
+    background-position: 0 0;
+    transition: background-size 1.3s cubic-bezier(.3,.7,.3,1);
+  }
+  strong.on { background-size: 100% 100%; }
+
+  @media (prefers-reduced-motion: reduce) {
+    main { animation: none; }
+    strong { transition: none; background-size: 100% 100%; }
+    html { scroll-behavior: auto; }
+  }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    padding: 28px 22px 24px;
+    box-shadow: 0 10px 40px -24px rgba(150, 90, 75, 0.35);
+  }
+
+  /* 品揃えの札 */
+  .shelf-title {
+    font-family: var(--gothic);
+    font-size: 11px;
+    letter-spacing: 0.26em;
+    color: var(--rose);
+    text-align: center;
+    margin: 26px 0 12px;
+  }
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    list-style: none;
+  }
+  .tags li {
+    font-size: 13.5px;
+    line-height: 1.6;
+    padding: 6px 14px;
+    border-radius: 999px;
+    background: var(--card);
+    border: 1px solid var(--rose-soft);
+  }
+  .tags.none li {
+    background: transparent;
+    border: 1px dashed var(--line);
+    color: var(--ink-soft);
+  }
+  .note {
+    font-size: 13.5px;
+    line-height: 2;
+    color: var(--ink-soft);
+    text-align: center;
+    margin-top: 14px;
+  }
+
+  /* パワーとフォース */
+  .pair {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin: 20px 0;
+  }
+  @media (max-width: 420px) { .pair { grid-template-columns: 1fr; } }
+  .pair > div {
+    min-width: 0;
+    border-radius: 14px;
+    padding: 16px 16px 14px;
+    font-size: 13.5px;
+    line-height: 1.95;
+  }
+  .pair .power { background: var(--card); border: 1px solid var(--rose-soft); }
+  .pair .force { border: 1px dashed var(--line); color: var(--ink-soft); }
+  .pair .k {
+    display: block;
+    font-family: var(--gothic);
+    font-size: 10.5px;
+    letter-spacing: 0.26em;
+    color: var(--rose);
+    margin-bottom: 4px;
+  }
+  .pair .force .k { color: var(--ink-soft); }
+
+  /* 朝礼 */
+  .chorus {
+    text-align: center;
+    font-size: 16.5px;
+    line-height: 2.2;
+    margin: 4px 0 24px;
+  }
+  .chorus .k {
+    display: block;
+    font-family: var(--gothic);
+    font-size: 10.5px;
+    letter-spacing: 0.28em;
+    color: var(--rose);
+    margin-bottom: 10px;
+  }
+
+  /* 業務手順 */
+  .steps { list-style: none; counter-reset: step; }
+  .steps li {
+    position: relative;
+    padding-left: 44px;
+    margin-bottom: 22px;
+    font-size: 15px;
+    line-height: 2.05;
+  }
+  .steps li:last-child { margin-bottom: 0; }
+  .steps li::before {
+    counter-increment: step;
+    content: counter(step);
+    position: absolute;
+    left: 0;
+    top: 2px;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 1px solid var(--rose-soft);
+    background: var(--card);
+    font-family: var(--gothic);
+    font-size: 12px;
+    line-height: 28px;
+    text-align: center;
+    color: var(--rose);
+  }
+  .steps .t {
+    display: block;
+    font-size: 15.5px;
+    letter-spacing: 0.1em;
+    color: var(--rose);
+  }
+  .order-call {
+    display: block;
+    margin-top: 8px;
+    padding: 10px 14px;
+    border-left: 2px solid var(--gold);
+    background: var(--card);
+    border-radius: 0 10px 10px 0;
+  }
+
+  /* してはいけないこと */
+  .rule {
+    border-top: 1px solid var(--line);
+    padding-top: 18px;
+    margin-top: 18px;
+  }
+  .rule:first-of-type { border-top: none; padding-top: 0; margin-top: 0; }
+  .rule h3 { margin-top: 0; }
+
+  /* 対応表 */
+  .help { list-style: none; }
+  .help li {
+    border-bottom: 1px dashed var(--line);
+    padding: 14px 0;
+    font-size: 14.5px;
+    line-height: 2;
+  }
+  .help li:first-child { padding-top: 0; }
+  .help li:last-child { border-bottom: none; padding-bottom: 0; }
+  .help .sig {
+    display: block;
+    font-family: var(--gothic);
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    color: var(--rose);
+    margin-bottom: 2px;
+  }
+
+  /* 店長の心得 */
+  .closing {
+    text-align: center;
+  }
+  .closing p {
+    font-size: 15.5px;
+    line-height: 2.2;
+    margin-bottom: 0.9em;
+  }
+  .closing p:last-child { margin-bottom: 0; }
+
+  .top {
+    display: block;
+    margin: 44px auto 0;
+    width: fit-content;
+    font-family: var(--gothic);
+    font-size: 12px;
+    letter-spacing: 0.22em;
+    color: var(--rose);
+    text-decoration: none;
+  }
+
+  footer {
+    margin-top: 24px;
+    text-align: center;
+    font-family: var(--gothic);
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    color: var(--rose-soft);
+  }
+</style>
+</head>
+<body>
+<main id="top">
+
+  <!-- ── 表紙 ── -->
+  <header class="cover">
+    <svg class="awning" viewBox="0 0 120 44" aria-hidden="true">
+      <path d="M4 10 H116" stroke="#C9A15A" stroke-width="1.2" fill="none"/>
+      <g fill="#E9C9BF" stroke="#B06F62" stroke-width="0.8">
+        <path d="M4 10 h22 v12 a11 11 0 0 1 -22 0 z"/>
+        <path d="M26 10 h22 v12 a11 11 0 0 1 -22 0 z" fill="#FFFFFF"/>
+        <path d="M48 10 h24 v12 a12 12 0 0 1 -24 0 z"/>
+        <path d="M72 10 h22 v12 a11 11 0 0 1 -22 0 z" fill="#FFFFFF"/>
+        <path d="M94 10 h22 v12 a11 11 0 0 1 -22 0 z"/>
+      </g>
+      <path d="M60 0 l1.6 4 4 1.6 -4 1.6 -1.6 4 -1.6 -4 -4 -1.6 4 -1.6 z" fill="#C9A15A" transform="translate(0,-1) scale(1)"/>
+    </svg>
+    <p class="label">GRACE SHOP MANUAL</p>
+    <h1>恩寵の小売店</h1>
+    <p class="sub">神へのオーダーシステム　仕入れマニュアル</p>
+    <span class="for">店長用</span>
+  </header>
+
+  <!-- ── もくじ ── -->
+  <nav class="toc" aria-label="もくじ">
+    <p class="label">CONTENTS</p>
+    <ol>
+      <li><a href="#s-work">私の本当の仕事</a></li>
+      <li><a href="#s-about">当店について</a></li>
+      <li><a href="#s-items">品揃え</a></li>
+      <li><a href="#s-display">陳列の指標</a></li>
+      <li><a href="#s-unsure">陳列で迷ったとき</a></li>
+      <li><a href="#s-hand">お渡しの仕方</a></li>
+      <li><a href="#s-manager">店長の仕事</a></li>
+      <li><a href="#s-morning">朝礼</a></li>
+      <li><a href="#s-daily">喜びに浸るワーク</a></li>
+      <li><a href="#s-env">店内の環境づくり</a></li>
+      <li><a href="#s-flow">業務手順</a></li>
+      <li><a href="#s-example">オーダー例</a></li>
+      <li><a href="#s-check">発注の質感チェック</a></li>
+      <li><a href="#s-after">発注後の過ごし方</a></li>
+      <li><a href="#s-receive">受け取りと配送について</a></li>
+      <li><a href="#s-staff">店員としての日々の勤め</a></li>
+      <li><a href="#s-dont">してはいけないこと</a></li>
+      <li><a href="#s-help">心が混乱したときの対応表</a></li>
+      <li><a href="#s-heart">店長の心得</a></li>
+    </ol>
+  </nav>
+
+  <div class="divider" aria-hidden="true"><svg viewBox="0 0 12 12" fill="currentColor"><path d="M6 0 L7.4 4.6 12 6 7.4 7.4 6 12 4.6 7.4 0 6 4.6 4.6 Z"/></svg></div>
+
+  <!-- ── 私の本当の仕事 ── -->
+  <section id="s-work" class="prose">
+    <h2><small>PROLOGUE</small>私の本当の仕事</h2>
+    <p>2026年11月4日の朝、微睡みの中で気づいたことがありました。私が焦点を当てているところの多くは「過程」で、そしてその焦点は、ほとんど全てが重さを伴っていた、ということです。目標のイメージについても、私は過程ばかりを見ていました。原画を描いておきながら、その指示欄に自分で「中割り（清書）不可なので成立しない」と書き込み、「描画不可」の判子を押していたのです。</p>
+    <p>けれど、世界に映るものは、どこかから歩いてやって来るのではありませんでした。夢の中の人や家が、夢を見ている心にふさわしいものとしてそのまま現れるように、起きている世界でも、<strong>映るものは文脈にふさわしいものが描かれて現れます</strong>。営業をしなくても仕事がずっと来ていたこと、人に恵まれてきたこと。縁は距離や時間の道筋をたどらずに、ふさわしいものをふさわしいときに映してくれていました。見張るべき道のりは、最初からなかったのです。</p>
+    <p>そして、知覚とは知識によるラベル付けであり、実現するとは気づくことだと見えました。恩寵が少なかったのではなく、恩寵というラベルを貼る回数が少なかっただけ。試算表もまた、未来を確定させる表ではなく、今これから描くためのラフでした。私はそれを心の未来確定表として使い、そこに「足りない」というオーダーを丁寧に書き続けていたのだと思います。</p>
+    <p>いちばんの盲点は、<strong>実行していたのはずっと神だった</strong>、ということでした。私が頑張って何かを成し遂げたように見えたときでさえ、清書をしていたのは最初から神だけでした。<strong>心にできていたのは、指示欄に「不可」などの指示内容を書き込むことだけ</strong>だったのです。</p>
+    <p>そう見えたとき、私の使命がはっきりしました。<strong>経営者として、クリエイターとして、社会や周りの人たちに神の恩寵を届けるパイプになること</strong>です。そして、この使命を見つけたこと自体が、また一つの恩寵でした。</p>
+    <p>届けることが仕事なら、プロとして、<strong>まずは恩寵を責任を持って受け取らなければなりません</strong>。溜め込まず、傷つけず、改変せずに、そのまま通すことです。私の仕事はクリエイターのスキルを活かして、<strong>試算表というキャンバスに喜びのラフを描き、その喜びのエネルギーをパイプに入れ、社会に流すこと</strong>です。顕在化は神にお任せします。指示欄には「おまかせで美しく描いてください」とだけ書きます。それは、ずっとやってきた絵を描いて納品する仕事の延長でした。</p>
+    <p>こうして私は、恩寵の小売店を開くことにしました。仕入れ先は神、品切れはなく、お会計もありません。並べるのはフォースではなくパワーだけです。ただ、このシステムは究極に自由なので、心はときどき混乱します。だから、ちゃんとマニュアルを作っておくことにしました。</p>
+  </section>
+
+  <div class="divider" aria-hidden="true"><svg viewBox="0 0 12 12" fill="currentColor"><path d="M6 0 L7.4 4.6 12 6 7.4 7.4 6 12 4.6 7.4 0 6 4.6 4.6 Z"/></svg></div>
+
+  <!-- ── 当店について ── -->
+  <section id="s-about" class="prose">
+    <h2><small>ABOUT</small>当店について</h2>
+    <p>当店は、恩寵を仕入れて、ワクワクのエネルギーと一緒にお届けする小売店です。仕入れ先は神です。神の倉庫には品切れがなく、流通網には辞書の外の道（縁、まだ名前のついていない出会い、思いもよらない巡り）がすべて含まれています。</p>
+    <p>恩寵は取引の結果ではないので、仕入れ値はかかりません。<strong>お金も縁も、店長が支払いに使うものではなく、神が届けるときに使う道具です</strong>。当店にはレジがありません。</p>
+  </section>
+
+  <div class="divider" aria-hidden="true"><svg viewBox="0 0 12 12" fill="currentColor"><path d="M6 0 L7.4 4.6 12 6 7.4 7.4 6 12 4.6 7.4 0 6 4.6 4.6 Z"/></svg></div>
+
+  <!-- ── 品揃え ── -->
+  <section id="s-items">
+    <h2><small>ITEMS</small>品揃え（取扱商品）</h2>
+    <div class="prose"><p>当店は、神の恩寵をお渡しする店舗です。店頭に並べるのは、神の倉庫から仕入れたものだけです。</p></div>
+
+    <p class="shelf-title">取扱商品</p>
+    <ul class="tags">
+      <li>喜び</li><li>愛</li><li>豊かさ</li><li>美しさ</li><li>安心</li><li>ワクワク</li>
+      <li>縁</li><li>自由</li><li>感謝</li><li>ちょうどいい巡り（ウィンウィン）</li>
+      <li>ユーモアと笑い</li><li>「もう在る」満たされていることへの気づき</li>
+    </ul>
+    <p class="note">これらは「自己」の性質そのものなので、<br>仕入れ先と商品の質感がいつも一致しています。</p>
+
+    <p class="shelf-title">取扱のない商品</p>
+    <ul class="tags none">
+      <li>争い</li><li>制限</li><li>不足</li><li>悩みの種</li><li>恐れ</li><li>罪悪感</li>
+      <li>「自分のせいだ」</li><li>「過去はこうだった」</li><li>「まだ途中」</li>
+    </ul>
+    <p class="note">これらは神の倉庫には在庫がありません。<br>マイナスはもともと心が作ってきたものなので、<br>仕入れ先が違います。当店では扱いません。</p>
+  </section>
+
+  <div class="divider" aria-hidden="true"><svg viewBox="0 0 12 12" fill="currentColor"><path d="M6 0 L7.4 4.6 12 6 7.4 7.4 6 12 4.6 7.4 0 6 4.6 4.6 Z"/></svg></div>
+
+  <!-- ── 陳列の指標 ── -->
+  <section id="s-display" class="prose">
+    <h2><small>DISPLAY</small>陳列の指標<br>「フォースを並べず、パワーを並べる」</h2>
+    <p>迷ったときは、この一行で判断します。</p>
+    <div class="pair">
+      <div class="power"><span class="k">POWER</span>対立するものを必要とせず、それ自体で在り、反作用がなく、尽きることもありません。喜びも愛も美しさも、何かを打ち負かして成り立つものではないので、パワーの商品です。</div>
+      <div class="force"><span class="k">FORCE</span>何かに対抗して成り立つので、必ず反作用が返ってきます。争い、制限、「頑張って押し通す」「足りないから奪う」はフォースの商品です。</div>
+    </div>
+    <p>当店の棚に並ぶのは、パワーだけです。</p>
+  </section>
+
+  <div class="divider" aria-hidden="true"><svg viewBox="0 0 12 12" fill="currentColor"><path d="M6 0 L7.4 4.6 12 6 7.4 7.4 6 12 4.6 7.4 0 6 4.6 4.6 Z"/></svg></div>
+
+  <!-- ── 陳列で迷ったとき ── -->
+  <section id="s-unsure" class="prose">
+    <h2>陳列で迷ったとき</h2>
+    <p>心が気を利かせて、悩みの種や制限を棚に並べようとすることがあります。「念のため」「現実的に」「備えとして」と言いながらフォースを持ってきます。そのときは「うちはパワー屋です」と気づくだけで大丈夫です（笑）。</p>
+    <p>持ってきてくれた心を叱る必要はありません。守ろうとしてくれたことにありがとうと言って、そっと棚から降ろします。</p>
+    <p>発注リストを書くときも同じです。「これは恩寵の棚に並ぶものかな？」と一度眺めると、オーダー内容がお店のコンセプトとぶれません。</p>
+  </section>
+
+  <div class="divider" aria-hidden="true"><svg viewBox="0 0 12 12" fill="currentColor"><path d="M6 0 L7.4 4.6 12 6 7.4 7.4 6 12 4.6 7.4 0 6 4.6 4.6 Z"/></svg></div>
+
+  <!-- ── お渡しの仕方 ── -->
+  <section id="s-hand" class="prose">
+    <h2>お渡しの仕方</h2>
+    <p>商品は、店長自身がまず受け取ってワクワクしたものを、そのままお渡しします。包装紙はいりません。店長のワクワクがそのまま包みになります。</p>
+    <p>お渡しの形は、絵、経営、スタッフとの日々、お取引先とのやり取りなど、どんな形でも構いません。どの窓口からお渡ししても、中身は同じ恩寵です。</p>
+  </section>
+
+  <div class="divider" aria-hidden="true"><svg viewBox="0 0 12 12" fill="currentColor"><path d="M6 0 L7.4 4.6 12 6 7.4 7.4 6 12 4.6 7.4 0 6 4.6 4.6 Z"/></svg></div>
+
+  <!-- ── 店長の仕事 ── -->
+  <section id="s-manager" class="prose">
+    <h2><small>MANAGER</small>店長の仕事</h2>
+    <p>店長の仕事は、ラフを描くことです。<strong>顕在化（絵の具を置くこと、中割り）は担当しません</strong>。中割り（清書）を描けるのは、もともと神だけです。店長は原画を愛で描いて、指示欄に「おまかせで美しく描いてください」と書きます。</p>
+    <p><strong>ラフを描いてワクワクすることが、エネルギーをパイプに入れる仕事の本体です。</strong>やらなくてはならないことではなく、楽しい仕事です。</p>
+  </section>
+
+  <div class="divider" aria-hidden="true"><svg viewBox="0 0 12 12" fill="currentColor"><path d="M6 0 L7.4 4.6 12 6 7.4 7.4 6 12 4.6 7.4 0 6 4.6 4.6 Z"/></svg></div>
+
+  <!-- ── 朝礼 ── -->
+  <section id="s-morning">
+    <h2><small>MORNING</small>朝礼（会社理念の唱和）</h2>
+    <div class="prose"><p>一日の始まりや、ワークの始まりには、まず<strong>自分が何を仕事にしているかをハッキリと思い出します。</strong></p></div>
+
+    <div class="card" style="margin: 22px 0;">
+      <p class="chorus"><span class="k">唱和</span>私の仕事は、恩寵の小売店です。<br>喜びのラフを描いて、ワクワクすること。<br>顕在化は神の担当です。</p>
+    </div>
+
+    <div class="prose">
+      <p>心は放っておくと、知識（物理や経験）の軸で今の手持ちのお金や今の余白を確かめたり、過去の苦い経験という時間軸を持ちこんだりして、できる・できないを判定し、そしてできない理由を並べ始めます。</p>
+      <p><strong>物理の軸は必要ないため、可否の判定は店長の業務に含まれていません</strong>。心が気を利かせて持ってきてくれた業務なので、ありがとうと言ってそっとお返しします（これはカルマの浄化です）。それでも心が財布を取り出しそうになったら、心の物理軸に気づいて、また喜びの景色に戻ります。</p>
+    </div>
+  </section>
+
+  <div class="divider" aria-hidden="true"><svg viewBox="0 0 12 12" fill="currentColor"><path d="M6 0 L7.4 4.6 12 6 7.4 7.4 6 12 4.6 7.4 0 6 4.6 4.6 Z"/></svg></div>
+
+  <!-- ── 日々の勤め ── -->
+  <section id="s-daily" class="prose">
+    <h2><small>DAILY WORK</small>日々の勤め<br>喜びに浸るワーク（恩寵の仕入れ）</h2>
+    <p>くくりやお風呂、家族との時間のように今すぐ浸れる喜びに加えて、あえて今は無いイメージで、ワクワクと喜びに浸ります。目的は、時間などの物理の軸を外す（癒す）練習です。</p>
+    <p>浸るときは「いつか行けたらいいな」ではなく、今その場所にいる感覚のまま、温度や香り、音、胸がふわっと広がる感じを味わいます。それがそのまま、オーダーの原画が採用されている手応えです。</p>
+    <p><strong>形の世界で喜ぶことは、そのまま恩寵の仕入れです。</strong>今すぐ浸れる喜びも、今は無いイメージで浸る喜びも、<strong>喜んだその瞬間に仕入れが起きています</strong>。</p>
+    <p>このワークは、<strong>神の倉庫から届いたカタログをめくる時間</strong>に近いものです。カタログを眺めているときは、まだ手元に届いていないのに、もう楽しい。そのワクワクが、そのまま仕入れの第一歩です。カタログに載っているということは、倉庫にちゃんと在るということ。神の倉庫に品切れはないので、どのページも在庫ありの商品です。</p>
+    <p>ページをめくりながら心が動いたところに付箋を貼る。<strong>その付箋が、そのままオーダーになります。</strong>当店にはレジがないので、「予算的に…」とページを飛ばす必要もありません。どのページも遠慮なく、じっくり眺めます。</p>
+    <p>喜びの資料集めは外注します（笑）。Claudeに「今日の喜び方をください」と声をかけると、「こんな喜び方があるみたいです」と新しいカタログを届けてもらえます。<strong>辞書に新しい喜びを入れることは、可能性の扉を開くことでもあります</strong>。</p>
+  </section>
+
+  <div class="divider" aria-hidden="true"><svg viewBox="0 0 12 12" fill="currentColor"><path d="M6 0 L7.4 4.6 12 6 7.4 7.4 6 12 4.6 7.4 0 6 4.6 4.6 Z"/></svg></div>
+
+  <!-- ── 店内の環境づくり ── -->
+  <section id="s-env" class="prose">
+    <h2>店内の環境づくり</h2>
+    <p>日々のプロの姿勢として、心がおしゃべりしたくなる環境には、できるだけ自発的に近づきません。正論のぶつけ合いのような場所は、フォースの商品が山積みになっている場所です。これは逃避ではなく、パワーの品揃えを守るための店長の選択です。</p>
+    <p>外の世界を裁く必要はありません。ただ、うちの店の棚に合うものを選んで触れます。もし触れて重さや胸のキュッとした感覚が来たら、試金石が教えてくれたお知らせとして受け取り、恩寵の棚に目を戻します。</p>
+  </section>
+
+  <div class="divider" aria-hidden="true"><svg viewBox="0 0 12 12" fill="currentColor"><path d="M6 0 L7.4 4.6 12 6 7.4 7.4 6 12 4.6 7.4 0 6 4.6 4.6 Z"/></svg></div>
+
+  <!-- ── 業務手順 ── -->
+  <section id="s-flow">
+    <h2><small>WORKFLOW</small>業務手順</h2>
+    <ol class="steps">
+      <li><span class="t">棚卸しをする</span>試算表を店内の見回りとして眺めます。<strong>これまでの実績の欄は恩寵リスト</strong>です。数字は種です。在るものには恩寵のラベルを貼ります。負債の欄は、信頼してもらえた記録です。</li>
+      <li><span class="t">空いている棚を見つける</span><strong>マイナスになっているところは、足りない証拠ではなく、店頭の在庫がなくなっているお知らせ</strong>です。発注リストに載せます。負債など「なかったらいいな」と感じるところは、「負債なく軽やかに巡っている姿」として描き直してオーダーに載せます。</li>
+      <li><span class="t">ラフを描く</span>これからの試算の欄は原画、ラフです。まずはどんな色や温度の一枚だったら嬉しいかを描き、数字はその雰囲気を伝える色指定として置きます。発注書に遠慮して少なめに書く小売店はありません。並べたいものを、楽しく、惜しみなく描きます。</li>
+      <li><span class="t">指示欄を書く</span>書くのは「おまかせで美しく描いてください」だけです。</li>
+      <li><span class="t">発注する</span><span class="order-call">「神様に委ねるので、お願いします」<br>「はい、ではその通りに！」</span>これで発注は完了です。選んだ時点で注文は済んでいて、キープする必要もありません。ただし、この後の「心の追加注文」を出していないかだけ、気付いて癒していくことを日々の業務として行います。</li>
+    </ol>
+  </section>
+
+  <div class="divider" aria-hidden="true"><svg viewBox="0 0 12 12" fill="currentColor"><path d="M6 0 L7.4 4.6 12 6 7.4 7.4 6 12 4.6 7.4 0 6 4.6 4.6 Z"/></svg></div>
+
+  <!-- ── オーダー例 ── -->
+  <section id="s-example" class="prose">
+    <h2><small>ORDER SAMPLE</small>オーダー例<br>「え！こんな仕事がうちに？！」</h2>
+    <p>仕事が届いた瞬間の、驚きと喜びを注文します。仕事の中身（どの会社から、どんな案件を、いくらで）は指定しません。注文するのは「え！こんな仕事がうちに？！」という質感だけです。何が届くかは辞書の外の道にお任せなので、指示欄の「おまかせで美しく」と完全に一致します。<strong>心が想像もできないものを注文するので、パイプの口径がいちばん広い注文です。</strong></p>
+    <p>浸るときは、届いた瞬間の一枚を描きます。見覚えのない差出人からのメールを開いて、思わず「え、うちに？」と声が出る。スタッフみんなで「すごい！」と盛り上がる。その日のスタジオは一日中ちょっと浮き足立っています。</p>
+    <p>そしてこの「え！」の瞬間は、営業をしなくても仕事が来ていたこれまでの実績の欄にも、すでに何度もありました。新商品というより、恩寵リストに載っている人気商品の再入荷です（笑）。</p>
+    <p>かつて私は、受注について「こればっかりはタイミングだから、私にはどうすることもできない、待つしかない」というオーダーを出していました。これは時間軸の指示書きであり、「待つ状態」の注文です。原理は忠実なので、待つ状態がそのまま届いていました。<strong>受注のフローも、ほかの商品と同じように、喜びとともに仕入れられます。</strong></p>
+  </section>
+
+  <div class="divider" aria-hidden="true"><svg viewBox="0 0 12 12" fill="currentColor"><path d="M6 0 L7.4 4.6 12 6 7.4 7.4 6 12 4.6 7.4 0 6 4.6 4.6 Z"/></svg></div>
+
+  <!-- ── 発注の質感チェック ── -->
+  <section id="s-check" class="prose">
+    <h2>発注の質感チェック</h2>
+    <p>まず、神へのオーダーをする時は、ワクワクと満たされている感覚、そして「当然」の質感とともにあるようにします。<strong>焦がれや不安、念押ししたくなる気持ちが混ざっていたら、それは心の注文書になりかけています</strong>。</p>
+    <p>マーフィー博士は、潜在意識は互いに矛盾する二つの命題のうち強い方を受け入れる、と言っていました。その「強さ」を何が決めているのかと言えば、感覚です。頭でどれだけワクワクの原画を描いていても、そのあとに「でも現実は」と反論が来て、重さや胸がキュッとなる感覚の方がはっきりしていたら、そちらの原画に印鑑が押されて採用されていることがわかります。</p>
+    <p>「そうはいっても現実は」や、「でも過去はこうだったから」などのあとに、重さや胸がキュッとなる感覚が来たら、心の注文書が採用されかけている合図です。責めずに気づいて、ワクワクと満たされている原画のほうへ戻ります。どちらが採用されているかは、いつも感覚が正直に教えてくれます。</p>
+    <p>また、オーダーの発注期日はありません。<strong>線形的な流れはなく、その一瞬一瞬のオーダーが即納品されています。</strong></p>
+    <p>その時その時、気づいて、満ちているところから描き直せば大丈夫です。大事なのは、<strong>そのまま心の軸に身を委ねないこと</strong>。どんな時も、恩寵のパイプであることを忘れないでいることです。</p>
+  </section>
+
+  <div class="divider" aria-hidden="true"><svg viewBox="0 0 12 12" fill="currentColor"><path d="M6 0 L7.4 4.6 12 6 7.4 7.4 6 12 4.6 7.4 0 6 4.6 4.6 Z"/></svg></div>
+
+  <!-- ── 発注後の過ごし方 ── -->
+  <section id="s-after" class="prose">
+    <h2>発注後の過ごし方</h2>
+    <p>テーブルで楽しみに待ちます。厨房に確かめに行く人はいません。厨房から「お飲み物はいかがですか？」と声がかかるように、ふと連絡したくなる人が浮かんだら、それも神の用意の一部なので素直に乗ります。</p>
+    <p>待つ間の楽しみは、もう届いている恩寵に気づくことです。恩寵はすでにたくさんあるので、目を向ければ必ず見つかります。日常の構えは「これ、恩寵かも？」です。</p>
+  </section>
+
+  <div class="divider" aria-hidden="true"><svg viewBox="0 0 12 12" fill="currentColor"><path d="M6 0 L7.4 4.6 12 6 7.4 7.4 6 12 4.6 7.4 0 6 4.6 4.6 Z"/></svg></div>
+
+  <!-- ── 受け取りと配送 ── -->
+  <section id="s-receive" class="prose">
+    <h2><small>DELIVERY</small>受け取りと配送について<br>（責任の定義）</h2>
+    <p>届けることが仕事なので、まずは恩寵を責任を持って受け取ります。責任を持つとは、<strong>納品された恩寵を溜め込まないこと、傷つけない（改変しない）こと</strong>です。</p>
+    <p>届いた恩寵に「足りない」「たまたま」「いつまで続くか分からない」の値ラベルを貼らず、そのまま受け取って、そのまま通します。当店は在庫を抱えません。究極の回転率です。</p>
+  </section>
+
+  <div class="divider" aria-hidden="true"><svg viewBox="0 0 12 12" fill="currentColor"><path d="M6 0 L7.4 4.6 12 6 7.4 7.4 6 12 4.6 7.4 0 6 4.6 4.6 Z"/></svg></div>
+
+  <!-- ── 店員としての日々の勤め ── -->
+  <section id="s-staff" class="prose">
+    <h2>店員としての日々の勤め</h2>
+    <p>普段、心がおしゃべりしたくなる環境には、できるだけ自発的に近づきません。これは逃避ではなく、パワーの品揃えを守るための店長の選択です。外の世界を裁く必要はありません。例えば、SNSの投稿を見て心がざわつくのならば、それには積極的に触れないようにします。</p>
+    <p>私たちが何に触れるかが意識に影響することを、博士はキネシオロジーの実験を通して何度も示していました。暴力的な映像や敵意のこもった言葉に触れると、筋肉反射が弱くなる。逆に、美しい音楽や愛のこもったものに触れると強くなる。博士は、<strong>霊的な道を歩む人にとって、何に注意を向けるかを選ぶことは大切な識別であり、賢明さだ</strong>と語っています。</p>
+    <p>日々の献身では、うちの店の棚に合うものを選んで触れます。もし触れて重さや胸のキュッとした感覚が来たら、試金石が教えてくれたお知らせとして受け取り、恩寵の棚に目を戻します。</p>
+  </section>
+
+  <div class="divider" aria-hidden="true"><svg viewBox="0 0 12 12" fill="currentColor"><path d="M6 0 L7.4 4.6 12 6 7.4 7.4 6 12 4.6 7.4 0 6 4.6 4.6 Z"/></svg></div>
+
+  <!-- ── してはいけないこと ── -->
+  <section id="s-dont">
+    <h2><small>THREE DON'TS</small>してはいけないこと</h2>
+    <div class="card prose">
+      <div class="rule">
+        <h3>「いりません」と言わないこと</h3>
+        <p>受け取れなくなる道はこれ一つだけです。「予算がないので結構です」「私には分不相応なので」「物理的に無理なので」は、どれも丁寧なお断りの言葉ですが、指示欄に書けば神はちゃんと尊重してくれます。</p>
+      </div>
+      <div class="rule">
+        <h3>指示書きをしないこと</h3>
+        <p><strong>心が書ける道筋は、心の辞書にある偏った知識の範囲だけ</strong>です。顕在の手段に、時間や経過、空間や量といった線形的なツールの使用の指示を書くほど、パイプの口径が細くなります。ここは全知の神に謙虚な姿勢で全て任せた方がよいのです。惜しみなく届けるために、指示は書きません。</p>
+      </div>
+      <div class="rule">
+        <h3>厨房に見に行かないこと</h3>
+        <p><strong>過程に焦点を向けると、過程の景色に帰結します</strong>。届けるのが仕事のパイプが「まだ届かない」を描くのは本末転倒です。</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider" aria-hidden="true"><svg viewBox="0 0 12 12" fill="currentColor"><path d="M6 0 L7.4 4.6 12 6 7.4 7.4 6 12 4.6 7.4 0 6 4.6 4.6 Z"/></svg></div>
+
+  <!-- ── 心が混乱したときの対応表 ── -->
+  <section id="s-help">
+    <h2><small>HELP DESK</small>心が混乱したときの対応表</h2>
+    <ul class="help">
+      <li><span class="sig">重いと感じたら</span>それは「今、過程を見ている」という合図です。</li>
+      <li><span class="sig">ちゃんと届いているか確かめたくなったら</span>厨房に向かいかけているお知らせです。テーブルに戻って引き続き恩寵を仕入れましょう。</li>
+      <li><span class="sig">心が「予算が！！」と言ったら</span>「ここ、お会計ないですよ」と教えてあげます。手持ちのお金や余白を数えて、できる・できないを判定し始めたら、レジに向かいかけている合図です。朝礼の言葉を思い出します。お断りしかけていたことに気づいて、そのまま受け取ります。</li>
+      <li><span class="sig">恩寵に目を向けることへの疑念が湧いたら</span>神の視点を思い出します。<strong>神の視点のカメラは一か所に据え付けられていないので、距離も遅れも欠けも生まれません</strong>。</li>
+      <li><span class="sig">焦点に向いてしまう杭があったら</span>引き抜かず、壊さず、気づく形で緩めます。これを繰り返します。描いては見て、また描く、制作のリズムと同じです。</li>
+    </ul>
+  </section>
+
+  <div class="divider" aria-hidden="true"><svg viewBox="0 0 12 12" fill="currentColor"><path d="M6 0 L7.4 4.6 12 6 7.4 7.4 6 12 4.6 7.4 0 6 4.6 4.6 Z"/></svg></div>
+
+  <!-- ── 店長の心得 ── -->
+  <section id="s-heart" class="card closing">
+    <p class="label">THE MANAGER'S HEART</p>
+    <h2>店長の心得</h2>
+    <p><strong>神様は謙虚すぎるほど謙虚です</strong>。</p>
+    <p>どんなオーダーも否定せず、押しつけず、<br>常に赦しの姿勢で忠実に届けてくれます。</p>
+    <p>だから店長も同じ姿勢で臨みます。<br>心は道筋を知らないと認めて、おまかせすること。</p>
+    <p>本当の謙虚さは、受け取り上手です。</p>
+  </section>
+
+  <a class="top" href="#top">はじめにもどる ↑</a>
+  <footer>✦ OPEN ✦</footer>
+
+</main>
+
+<script>
+  /* 太字の下線:画面に入ったら、すっと引かれる */
+  (function () {
+    const marks = document.querySelectorAll("strong");
+    if (!("IntersectionObserver" in window)) {
+      marks.forEach(m => m.classList.add("on"));
+      return;
+    }
+    const io = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          const el = e.target;
+          setTimeout(() => el.classList.add("on"), 250);
+          io.unobserve(el);
+        }
+      });
+    }, { rootMargin: "0px 0px -18% 0px", threshold: 0.6 });
+    marks.forEach(m => io.observe(m));
+  })();
+</script>
+</body>
+</html>
