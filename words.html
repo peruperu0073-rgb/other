@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>降りてきた言葉</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;600&family=Zen+Kaku+Gothic+New:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#f7f2ea; --bg2:#efe6d8; --ink:#3b342c; --soft:#8a7d6d; --line:#ded2bf;
+    --glow:rgba(232,196,120,.38); --accent:#b98a3e;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#1d1a17; --bg2:#26221d; --ink:#ece4d6; --soft:#a39683; --line:#3a342c;
+      --glow:rgba(214,170,90,.28); --accent:#d9b06a;
+    }
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    background:radial-gradient(120% 80% at 50% 0%, var(--bg2), var(--bg) 60%);
+    color:var(--ink);
+    font-family:"Shippori Mincho","Hiragino Mincho ProN","Yu Mincho",serif;
+    -webkit-tap-highlight-color:transparent;
+    overflow:hidden;
+  }
+  .app{
+    height:100%; display:flex; flex-direction:column;
+    padding:calc(env(safe-area-inset-top) + 18px) 0 calc(env(safe-area-inset-bottom) + 14px);
+    max-width:640px; margin:0 auto;
+  }
+  header{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:0 22px 10px; font-family:"Zen Kaku Gothic New",sans-serif;
+    color:var(--soft); font-size:12px; letter-spacing:.12em;
+  }
+  header .ttl{font-family:"Shippori Mincho",serif; font-size:14px; color:var(--ink); letter-spacing:.2em}
+  .icon-btn{
+    background:none; border:none; color:var(--soft); font:inherit; font-size:12px;
+    padding:8px 6px; cursor:pointer; letter-spacing:.1em;
+  }
+  .stage{
+    flex:1; position:relative; overflow:hidden;
+  }
+  .card{
+    position:absolute; inset:0; overflow-y:auto; -webkit-overflow-scrolling:touch;
+    padding:18px 28px 40px;
+    transition:opacity .45s ease, transform .45s ease;
+  }
+  .card.out{opacity:0; transform:translateY(8px)}
+  .num{
+    font-family:"Zen Kaku Gothic New",sans-serif; font-size:11px; color:var(--accent);
+    letter-spacing:.3em; margin-bottom:6px;
+  }
+  .label{
+    font-size:13px; color:var(--soft); letter-spacing:.15em; margin-bottom:22px;
+  }
+  .label::after{
+    content:""; display:block; width:28px; height:1px; background:var(--accent);
+    margin-top:14px; opacity:.6;
+  }
+  .text{
+    font-size:17.5px; line-height:2.15; letter-spacing:.04em; text-align:justify;
+  }
+  .text .hl{
+    font-style:normal;
+    background:linear-gradient(transparent 58%, var(--glow) 58%);
+    font-weight:600;
+  }
+  .hint{
+    text-align:center; font-family:"Zen Kaku Gothic New",sans-serif; font-size:11px;
+    color:var(--soft); letter-spacing:.15em; margin-top:34px; opacity:.7;
+  }
+  footer{padding:8px 22px 0; display:flex; flex-direction:column; gap:12px; align-items:center}
+  .dots{display:flex; gap:7px; flex-wrap:wrap; justify-content:center}
+  .dot{
+    width:7px; height:7px; border-radius:50%; background:var(--line); border:none; padding:0;
+    cursor:pointer; transition:background .3s, transform .3s;
+  }
+  .dot.on{background:var(--accent); transform:scale(1.25)}
+  .nav{display:flex; width:100%; justify-content:space-between; font-family:"Zen Kaku Gothic New",sans-serif}
+  .nav button{
+    background:none; border:1px solid var(--line); color:var(--soft); border-radius:999px;
+    font:inherit; font-size:12px; letter-spacing:.12em; padding:8px 16px; cursor:pointer;
+  }
+  .nav .mid{border:none}
+  /* index overlay */
+  .overlay{
+    position:fixed; inset:0; background:var(--bg); z-index:10;
+    padding:calc(env(safe-area-inset-top) + 22px) 24px calc(env(safe-area-inset-bottom) + 22px);
+    overflow-y:auto; opacity:0; pointer-events:none; transition:opacity .35s;
+  }
+  .overlay.show{opacity:1; pointer-events:auto}
+  .overlay h2{font-size:15px; font-weight:600; letter-spacing:.2em; margin:0 auto 20px; max-width:592px;
+    display:flex; justify-content:space-between; align-items:center}
+  .overlay ol{list-style:none; max-width:592px; margin:0 auto}
+  .overlay li{border-top:1px solid var(--line)}
+  .overlay li:last-child{border-bottom:1px solid var(--line)}
+  .overlay li button{
+    display:block; width:100%; text-align:left; background:none; border:none; color:var(--ink);
+    font:inherit; padding:15px 4px; cursor:pointer; line-height:1.7;
+  }
+  .overlay .n{font-family:"Zen Kaku Gothic New",sans-serif; color:var(--accent); font-size:11px; letter-spacing:.2em; margin-right:10px}
+  .overlay .l{font-size:14px; letter-spacing:.1em}
+  .overlay .p{display:block; font-size:12px; color:var(--soft); margin-top:2px; overflow:hidden; white-space:nowrap; text-overflow:ellipsis}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <button class="icon-btn" id="openIndex">目次</button>
+    <span class="ttl">降りてきた言葉</span>
+    <span class="icon-btn" style="visibility:hidden">目次</span>
+  </header>
+
+  <div class="stage" id="stage">
+    <article class="card" id="card">
+      <div class="num" id="num"></div>
+      <div class="label" id="label"></div>
+      <div class="text" id="text"></div>
+      <div class="hint" id="hint">タップで次の言葉へ</div>
+    </article>
+  </div>
+
+  <footer>
+    <div class="dots" id="dots"></div>
+    <div class="nav">
+      <button id="prev">← 戻る</button>
+      <button class="mid" id="count"></button>
+      <button id="next">次の言葉 →</button>
+    </div>
+  </footer>
+</div>
+
+<div class="overlay" id="overlay">
+  <h2><span>目次</span><button class="icon-btn" id="closeIndex">閉じる</button></h2>
+  <ol id="list"></ol>
+</div>
+
+<script>
+const W = [
+{l:"悲劇を発見する",
+t:"「私」が見ている悲劇を発見しなさい。**あなたが「ほんとう」だと思うことは神の愛のみでありなさい**。悲劇の中で獲得する全ての報酬を放棄しなさい。「与えられない私」という被害者意識と「“私”の力で獲る」という虚栄心を全て放棄しなさい。心が得るものは刹那的で対極の不幸を常に必要とします。神に対極はありません。喜びと無限のエネルギーのみを求め、そして与えられなさい。"},
+{l:"無限の水源から受け取る",
+t:"こうしたら手に入る、という「手段」や「取引」や「条件付け」は全て、水を求める状況で自ら傘をさす行為だと気付きなさい。あなたの心は何も知ってはいません。**既に全ては条件なく常に与えられ、帰結し、顕在していることを悟りなさい**。「私」に出来ることは何も無く、ただ受け取るだけでいいのだと悟りなさい。そして、与えたいなら、この無限の水源から受け取りなさい。心は「私」が手に入れた水を与えることはできないでしょう。「私」は測り、そして、減ったり、失ったり、欠如すると信じているからです。**失われるものは無限の水源ではありません**。"},
+{l:"愛したいなら、神から受け取る",
+t:"愛したいなら、神から受け取りなさい。**神は全てを存在させている根源です。特別なものは何一つありません**。どんなものも平等に源から生まれています。優劣も、価値の大きさも、心が解釈したものに過ぎません。**全ては与えられ続け、存在し、創造され続けています**。あなたが満たされたと感じたものも、全て源から与えられているエネルギーから来ています。"},
+{l:"源の愛は、無条件で無限",
+t:"不完全で、犠牲を伴うものは源は与えていません。**それらを与えられたと感じるのは、あなたがその不完全性や犠牲という形を活用するシステムと同一化しているからです**。純粋な源の体感のみを求めなさい。**全ての解釈と意味付けを放棄しなさい。喜びも、豊かさも、困難も、障害も、全ては求めたら与えられます**。困難や苦労の道を選ぶことは美しいことでも、正義でも、条件でもありません。**純粋な愛のみが今この瞬間にも与えられている“存在させる”ことの根源的なエネルギーです**。許可したり、溜め込んだり、削られたりする必要があるものは愛ではありません。それらは心が解釈を加えたものです。源の愛は、無条件で、無限です。"},
+{l:"愛に徹底的に降伏する",
+t:"愛に徹底的に降伏しなさい。心が出来ることは選択し、遊ぶことです。遊ぶことを喜び、楽しみ、そして愛しなさい。**疑ったり、証明したり、負かしたり、身を削ったり、苦労を誇示したりすることをさせる必要はありません**。これらの感情は神に明け渡し、代わりに愛を求めなさい。あなたが愛に満たされることが、この世に愛をもたらすことです。**心の証明や論証で愛を受け取ることはできないのだと謙虚に受け止めなさい**。心に出来ることは何もありません。ただ、愛から形を喜び、全ての存在を楽しむだけでいいのです。困難や問題や障害も、神の光のみが消し去ります。**あらゆるものを存在させるエネルギーである源に勝るものは何もないのだと悟りなさい**。全ての抵抗をやめ、与えられなさい。そして、愛が喜びの分かち合いを自動的に行うでしょう。**愛の与えるという性質に身を委ねるのです**。愛を与える時、失われるものも、犠牲になるものも何一つありません。あなたは喜びと心地よさを必ず感じます。"},
+{l:"「神が与えてくれた」と選ぶ",
+t:"あなたが受け取ったものは、すべて、神が与えたものです。心が獲得したものは何一つありません。心は与えられたものに、意味をつけたり、解釈をしたり、測ることしかできません。しかし、心にもできることが一つだけあります。それは、**このように、「神が与えてくれた」と解釈し、選択すること**です。神から授かった心という機能を良き従者として従えなさい。得ることはできません。獲得するものは何もないからです。解釈は真実そのものでは全くありません。受け取ることはカルマとして存在しています。そして神にのみ降伏し、受け取りなさい。無限のものは、どれだけでも与えることが可能です。"},
+{l:"謙虚に知る",
+t:"**あなたが悩んだり、苦労したり、うまくいかないということができるのは、源のエネルギーを受け取ってはじめてできていることであると謙虚に知りなさい**。あなたが存在するのは神の愛によるものです。**愛と喜びに心で抵抗し、虚栄心や著者性を持つことを放棄しなさい**。自明である愛に抵抗することは何の愛ももたらしません。**今目の前にあるものは全て、源の不動で尽きることのないエネルギーから供給されているものです**。そこに、外の世界の「原因」や、「私が」、「何者かによって」と著者性を加えた解釈をしないことです。神の愛に気が付けば、その圧倒的な実在に、心が静かになるのを感じるでしょう。これらは謙虚さによって知ることのできる世界です。**その愛の臨在に触れた時、あなたは無限で尽きることのないエネルギーを感じ、世界に与えることになるでしょう**。"},
+{l:"神は呼吸をするように",
+t:"神は呼吸をするように、絶え間なく与え続け、創造と展開しています。今この瞬間にも、あなたを通して愛がもたらされ続けています。非線形から降りてきたさまざまなイメージや目標を通して、神は創造を行います。**これらに抵抗することをやめなさい。これらは個人的なあなたが描いたものではなく、非線形に源から与えられたものであると気づきなさい。あなたは神からあらゆることを条件なくいつでも体験できる機会を授かっているのです。ここにどんな制限も条件もありません。**喜びや美を求めなさい。**そしてそれらへの心の解釈を放棄するのです**。心が解釈し描いた苦悩や悲劇のイメージへ同一化することは、心の報酬となり、それらは展開し、カルマは継続されるでしょう。しかし、心の抵抗よりも、喜びと十全性を選択する意志を持ちなさい。これらは世界へ光を届け、愛を与え、そして心自身も癒すことになるでしょう。"},
+{l:"小ささは神の性質ではない",
+t:"己を小さきものとして「値しない」と見ることをやめなさい。あなたは源にのみ全てを与えられ存在していることを知りました。神の愛は無限で、非局所的で、全ての究極の根源です。小ささは神の性質ではありません。**喜びや十全性への抵抗の根源は、心が最後に唯一握りしめた「相応しくない私」という著者性です**。この心の偽りの謙虚さを見抜きなさい。神は恩寵への条件は何も与えていません。与えられる者と与えられざる者という二元性は心の解釈に過ぎません。**悲観するのをやめ、被害者意識を持つことをやめ、個人的な「私」に自己陶酔することをやめなさい**。神に完全に明け渡したとき、求めることが全て与えられることを悟るでしょう。"},
+{l:"神に相応しいのは神の性質のみ",
+t:"どんなものも神に求めなさい。そして、今あなたの目の前にあるもの、全てはすでに神によって与えられたものです。もしも与えられたものに対し、ネガティブな感情が湧くのであれば、**それらは“自分”がその時に必要だと認めたものたちだと理解しなさい**。神は「あなたに悲劇が必要です」と言ったことは一度もありません。それはあなたが、神ではなく、悲劇に何かを求め、得たからです。神は全てを与えます。そして、神は喜びしか与えていないことをあなたは知っています。「私」に「相応しい」形を求めるのをやめなさい。あなたは神の意識と共にあります。神に相応しいのは神の性質のみです。"},
+{l:"光で心を癒す",
+t:"心を常に神へ向けなさい。神は特定のどこかにはいません。すでにここに存在しています。あなたに意識がある以上、あなたは神の中にいます。心が「悲劇」という虚栄の世界に自己陶酔をしようとした時、あなた自身が自らの心を照らすのです。神に背くのをやめ、光で心を癒しなさい。心が見ている「私」が悲劇であろうとも、それは神の愛で包み込まれています。"}
+];
+
+const esc = s => s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+const fmt = s => esc(s).replace(/\*\*(.+?)\*\*/g,'<em class="hl">$1</em>');
+const plain = s => s.replace(/\*\*/g,"");
+
+const $ = id => document.getElementById(id);
+const card=$("card"), dots=$("dots");
+/* random order: a shuffled bag so every word appears before any repeats */
+let bag=[];
+function draw(exclude){
+  if(!bag.length){
+    bag=W.map((_,k)=>k);
+    for(let a=bag.length-1;a>0;a--){const b=Math.floor(Math.random()*(a+1));[bag[a],bag[b]]=[bag[b],bag[a]]}
+    if(bag.length>1 && bag[bag.length-1]===exclude){ [bag[0],bag[bag.length-1]]=[bag[bag.length-1],bag[0]] }
+  }
+  return bag.pop();
+}
+let i = draw(-1);
+const hist=[];
+
+W.forEach((w,k)=>{
+  const d=document.createElement("button"); d.className="dot"; d.setAttribute("aria-label",(k+1)+"番目");
+  d.onclick=e=>{e.stopPropagation(); go(k)}; dots.appendChild(d);
+  const li=document.createElement("li");
+  li.innerHTML='<button><span class="n">'+String(k+1).padStart(2,"0")+'</span><span class="l">'+esc(w.l)+'</span><span class="p">'+esc(plain(w.t))+'</span></button>';
+  li.firstChild.onclick=()=>{closeIdx(); go(k)};
+  $("list").appendChild(li);
+});
+
+function render(){
+  const w=W[i];
+  $("num").textContent=String(i+1).padStart(2,"0")+" / "+String(W.length).padStart(2,"0");
+  $("label").textContent=w.l;
+  $("text").innerHTML=fmt(w.t);
+  $("count").textContent=(i+1)+" / "+W.length;
+  $("prev").style.visibility = hist.length ? "visible" : "hidden";
+  [...dots.children].forEach((d,k)=>d.classList.toggle("on",k===i));
+  card.scrollTop=0;
+}
+let busy=false;
+function go(k, fromBack){
+  if(busy) return;
+  if(k===i){render();return}
+  if(!fromBack) hist.push(i);
+  busy=true; card.classList.add("out");
+  setTimeout(()=>{i=k; render(); card.classList.remove("out"); busy=false},300);
+}
+render();
+
+function next(){ go(draw(i)) }
+function back(){ if(hist.length && !busy) go(hist.pop(), true) }
+$("next").onclick=e=>{e.stopPropagation(); next()};
+$("prev").onclick=e=>{e.stopPropagation(); back()};
+
+/* tap: left fifth = back, elsewhere = next; ignore scroll / swipe handled separately */
+let sx=0, sy=0, st=0, moved=false;
+const stage=$("stage");
+stage.addEventListener("touchstart",e=>{const t=e.touches[0]; sx=t.clientX; sy=t.clientY; st=Date.now(); moved=false},{passive:true});
+stage.addEventListener("touchmove",e=>{const t=e.touches[0]; if(Math.abs(t.clientX-sx)>10||Math.abs(t.clientY-sy)>10) moved=true},{passive:true});
+stage.addEventListener("touchend",e=>{
+  const t=e.changedTouches[0], dx=t.clientX-sx, dy=t.clientY-sy;
+  if(Math.abs(dx)>60 && Math.abs(dx)>Math.abs(dy)*1.5){ dx<0?next():back(); e.preventDefault(); return; }
+  if(!moved && Date.now()-st<500){ tapAt(t.clientX); e.preventDefault(); }
+});
+stage.addEventListener("click",e=>{ if(window.getSelection && String(window.getSelection())) return; tapAt(e.clientX) });
+function tapAt(x){
+  const r=stage.getBoundingClientRect();
+  (x-r.left) < r.width*0.2 ? back() : next();
+}
+document.addEventListener("keydown",e=>{
+  if(e.key==="ArrowRight"||e.key===" ") next();
+  if(e.key==="ArrowLeft") back();
+  if(e.key==="Escape") closeIdx();
+});
+
+$("openIndex").onclick=()=>$("overlay").classList.add("show");
+$("closeIndex").onclick=closeIdx;
+function closeIdx(){$("overlay").classList.remove("show")}
+</script>
+</body>
+</html>
